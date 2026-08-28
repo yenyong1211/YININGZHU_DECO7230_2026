@@ -1,15 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class ObjectClickRaycast : MonoBehaviour
 {
     public Camera playerCamera;
-
     public float maxDistance = 100f;
-    public float doubleClickTime = 0.5f;
-
-    private float lastClickTime = -10f;
-    private LearningObject lastClickedObject;
 
     void Start()
     {
@@ -26,6 +22,14 @@ public class ObjectClickRaycast : MonoBehaviour
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
+
+            if (EventSystem.current != null &&
+                EventSystem.current.IsPointerOverGameObject())
+            {
+                Debug.Log("UI CLICK - ignore scene raycast");
+                return;
+            }
+
             CheckClick();
         }
     }
@@ -37,13 +41,6 @@ public class ObjectClickRaycast : MonoBehaviour
 
         Ray ray =
             playerCamera.ScreenPointToRay(mousePosition);
-
-        Debug.DrawRay(
-            ray.origin,
-            ray.direction * maxDistance,
-            Color.red,
-            1f
-        );
 
         if (Physics.Raycast(
             ray,
@@ -66,47 +63,8 @@ public class ObjectClickRaycast : MonoBehaviour
 
             if (learningObject != null)
             {
-                float timeSinceLastClick =
-                    Time.time - lastClickTime;
-
-                bool sameObject =
-                    learningObject == lastClickedObject;
-
-                if (
-                    sameObject &&
-                    timeSinceLastClick <= doubleClickTime
-                )
-                {
-                    Debug.Log(
-                        "DOUBLE CLICK SUCCESS!"
-                    );
-
-                    learningObject.OpenLearningCard();
-
-                    lastClickTime = -10f;
-                    lastClickedObject = null;
-                }
-                else
-                {
-                    Debug.Log(
-                        "FIRST CLICK: " +
-                        learningObject.english
-                    );
-
-                    lastClickTime = Time.time;
-                    lastClickedObject = learningObject;
-                }
+                learningObject.OpenLearningCard();
             }
-            else
-            {
-                Debug.Log(
-                    "This object has no LearningObject script."
-                );
-            }
-        }
-        else
-        {
-            Debug.Log("CLICK HIT NOTHING");
         }
     }
 }

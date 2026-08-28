@@ -5,17 +5,25 @@ public class VocabularyUI : MonoBehaviour
 {
     public GameObject vocabularyPanel;
 
+    public GameObject frontPanel;
+    public GameObject backPanel;
+
     public TextMeshProUGUI chineseText;
     public TextMeshProUGUI pinyinText;
     public TextMeshProUGUI englishText;
 
     public AudioSource audioSource;
 
-    private AudioClip currentPronunciation;
+    private bool pinyinVisible = false;
 
     void Start()
     {
         vocabularyPanel.SetActive(false);
+
+        frontPanel.SetActive(true);
+        backPanel.SetActive(false);
+
+        pinyinText.gameObject.SetActive(false);
     }
 
     public void ShowWord(
@@ -30,47 +38,49 @@ public class VocabularyUI : MonoBehaviour
         pinyinText.text = pinyin;
         englishText.text = english;
 
-        currentPronunciation = pronunciation;
+        audioSource.clip = pronunciation;
 
-        if (currentPronunciation == null)
-        {
-            Debug.LogError(
-                "ShowWord received NO AUDIO for: " + english
-            );
-        }
-        else
-        {
-            Debug.Log(
-                "ShowWord received audio: " +
-                currentPronunciation.name
-            );
-        }
+        frontPanel.SetActive(true);
+        backPanel.SetActive(false);
+
+        pinyinVisible = false;
+        pinyinText.gameObject.SetActive(false);
+    }
+
+    public void TogglePinyin()
+    {
+        pinyinVisible = !pinyinVisible;
+
+        pinyinText.gameObject.SetActive(pinyinVisible);
+    }
+
+    public void FlipToBack()
+    {
+        frontPanel.SetActive(false);
+        backPanel.SetActive(true);
+    }
+
+    public void FlipToFront()
+    {
+        backPanel.SetActive(false);
+        frontPanel.SetActive(true);
     }
 
     public void PlayPronunciation()
     {
-        Debug.Log("LISTEN BUTTON CLICKED");
-
-        if (currentPronunciation == null)
-        {
-            Debug.LogError(
-                "Pronunciation AudioClip is NULL!"
-            );
-            return;
-        }
-
         if (audioSource == null)
         {
-            Debug.LogError(
-                "AudioSource is NULL!"
-            );
+            Debug.LogError("AudioSource is missing!");
             return;
         }
 
-        Debug.Log(
-            "PLAYING: " + currentPronunciation.name
-        );
+        if (audioSource.clip == null)
+        {
+            Debug.LogError("No pronunciation audio!");
+            return;
+        }
 
-        audioSource.PlayOneShot(currentPronunciation);
+        audioSource.Stop();
+        audioSource.Play();
     }
 }

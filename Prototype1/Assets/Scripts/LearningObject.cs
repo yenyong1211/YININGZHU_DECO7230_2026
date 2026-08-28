@@ -5,39 +5,25 @@ public class LearningObject : MonoBehaviour
     public string chinese;
     public string pinyin;
     public string english;
-
     public AudioClip pronunciation;
-
-    private VocabularyUI vocabularyUI;
-
-    void Start()
-    {
-        vocabularyUI =
-            FindFirstObjectByType<VocabularyUI>();
-    }
 
     public void OpenLearningCard()
     {
+        VocabularyUI ui = FindFirstObjectByType<VocabularyUI>();
+
+        if (ui == null)
+        {
+            Debug.LogError("VocabularyUI not found.");
+            return;
+        }
+
         Debug.Log(
-            "OPEN OBJECT: " + gameObject.name
+            "OPEN: " + gameObject.name +
+            " | audio = " +
+            (pronunciation != null ? pronunciation.name : "NULL")
         );
 
-        if (pronunciation == null)
-        {
-            Debug.LogError(
-                "❌ THIS OBJECT HAS NO AUDIO: "
-                + gameObject.name
-            );
-        }
-        else
-        {
-            Debug.Log(
-                "✅ OBJECT AUDIO = "
-                + pronunciation.name
-            );
-        }
-
-        vocabularyUI.ShowWord(
+        ui.ShowWord(
             chinese,
             pinyin,
             english,
