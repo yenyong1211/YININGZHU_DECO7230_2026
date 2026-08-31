@@ -5,6 +5,7 @@ public class CameraMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 3f;
+    public float verticalSpeed = 2f;
 
     [Header("Mouse Look")]
     public float mouseSensitivity = 0.15f;
@@ -47,7 +48,21 @@ public class CameraMovement : MonoBehaviour
         if (Keyboard.current.dKey.isPressed)
             move += transform.right;
 
-        move.y = 0;
+        if (Keyboard.current.qKey.isPressed)
+            move += Vector3.down;
+
+        if (Keyboard.current.eKey.isPressed)
+            move += Vector3.up;
+
+        if (
+            Keyboard.current.wKey.isPressed ||
+            Keyboard.current.sKey.isPressed ||
+            Keyboard.current.aKey.isPressed ||
+            Keyboard.current.dKey.isPressed
+        )
+        {
+            move.y = 0;
+        }
 
         if (move.sqrMagnitude > 0)
         {

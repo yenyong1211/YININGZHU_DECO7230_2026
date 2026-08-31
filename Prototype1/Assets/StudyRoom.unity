@@ -719,6 +719,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraMovement
   moveSpeed: 3
+  verticalSpeed: 2
   mouseSensitivity: 0.15
   smoothSpeed: 12
 --- !u!114 &330585549
@@ -3790,8 +3791,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VocabularyUI
   vocabularyPanel: {fileID: 1921797714}
-  frontPanel: {fileID: 0}
-  backPanel: {fileID: 0}
   chineseText: {fileID: 1952191990}
   pinyinText: {fileID: 760381536}
   englishText: {fileID: 934137684}

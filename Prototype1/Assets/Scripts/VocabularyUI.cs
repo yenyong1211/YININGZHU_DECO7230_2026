@@ -5,25 +5,15 @@ public class VocabularyUI : MonoBehaviour
 {
     public GameObject vocabularyPanel;
 
-    public GameObject frontPanel;
-    public GameObject backPanel;
-
     public TextMeshProUGUI chineseText;
     public TextMeshProUGUI pinyinText;
     public TextMeshProUGUI englishText;
 
     public AudioSource audioSource;
 
-    private bool pinyinVisible = false;
-
     void Start()
     {
         vocabularyPanel.SetActive(false);
-
-        frontPanel.SetActive(true);
-        backPanel.SetActive(false);
-
-        pinyinText.gameObject.SetActive(false);
     }
 
     public void ShowWord(
@@ -38,47 +28,43 @@ public class VocabularyUI : MonoBehaviour
         pinyinText.text = pinyin;
         englishText.text = english;
 
-        audioSource.clip = pronunciation;
 
-        frontPanel.SetActive(true);
-        backPanel.SetActive(false);
+        if (pronunciation != null)
+        {
+            audioSource.Stop();
+            audioSource.clip = pronunciation;
 
-        pinyinVisible = false;
-        pinyinText.gameObject.SetActive(false);
-    }
+            Debug.Log(
+                "AUDIO CHANGED TO: " + pronunciation.name
+            );
+        }
+        else
+        {
+            audioSource.clip = null;
 
-    public void TogglePinyin()
-    {
-        pinyinVisible = !pinyinVisible;
-
-        pinyinText.gameObject.SetActive(pinyinVisible);
-    }
-
-    public void FlipToBack()
-    {
-        frontPanel.SetActive(false);
-        backPanel.SetActive(true);
-    }
-
-    public void FlipToFront()
-    {
-        backPanel.SetActive(false);
-        frontPanel.SetActive(true);
+            Debug.LogError(
+                "NO AUDIO FOR: " + english
+            );
+        }
     }
 
     public void PlayPronunciation()
     {
         if (audioSource == null)
         {
-            Debug.LogError("AudioSource is missing!");
+            Debug.LogError("AudioSource is NULL!");
             return;
         }
 
         if (audioSource.clip == null)
         {
-            Debug.LogError("No pronunciation audio!");
+            Debug.LogError("AudioSource clip is NULL!");
             return;
         }
+
+        Debug.Log(
+            "PLAYING: " + audioSource.clip.name
+        );
 
         audioSource.Stop();
         audioSource.Play();
