@@ -1,0 +1,2 @@
+/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt
+/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt
