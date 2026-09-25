@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.XR;
 
 public class LearningCardManager : MonoBehaviour
 {
@@ -11,10 +10,10 @@ public class LearningCardManager : MonoBehaviour
 
     public UIFlowManager uiFlowManager;
 
-    private int currentIndex = 0;
+    public AudioSource audioSource;
+    public AudioClip[] wordAudioClips;
 
-    private bool leftTriggerPressed = false;
-    private bool rightTriggerPressed = false;
+    private int currentIndex = 0;
 
     private string[] chineseWords =
     {
@@ -48,42 +47,6 @@ public class LearningCardManager : MonoBehaviour
         ShowCard();
     }
 
-    void Update()
-    {
-        CheckControllerInput();
-    }
-
-    void CheckControllerInput()
-    {
-        InputDevice leftController =
-            InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-
-        InputDevice rightController =
-            InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-
-        if (leftController.TryGetFeatureValue(
-            CommonUsages.triggerButton, out bool leftPressed))
-        {
-            if (leftPressed && !leftTriggerPressed)
-            {
-                PreviousCard();
-            }
-
-            leftTriggerPressed = leftPressed;
-        }
-
-        if (rightController.TryGetFeatureValue(
-            CommonUsages.triggerButton, out bool rightPressed))
-        {
-            if (rightPressed && !rightTriggerPressed)
-            {
-                NextCard();
-            }
-
-            rightTriggerPressed = rightPressed;
-        }
-    }
-
     public void NextCard()
     {
         if (currentIndex < chineseWords.Length - 1)
@@ -111,8 +74,21 @@ public class LearningCardManager : MonoBehaviour
         chineseText.text = chineseWords[currentIndex];
         pinyinText.text = pinyinWords[currentIndex];
         englishText.text = englishWords[currentIndex];
-
         progressText.text =
             (currentIndex + 1) + " / " + chineseWords.Length;
+    }
+
+    public void PlayWordAudio()
+    {
+        Debug.Log("Play audio: " + currentIndex);
+        
+        if (audioSource != null &&
+            wordAudioClips != null &&
+            currentIndex < wordAudioClips.Length &&
+            wordAudioClips[currentIndex] != null)
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(wordAudioClips[currentIndex]);
+        }
     }
 }

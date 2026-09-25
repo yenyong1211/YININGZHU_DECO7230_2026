@@ -5,27 +5,46 @@ public class Task1Manager : MonoBehaviour
 {
     public GameObject task1Panel;
     public TMP_Text feedbackText;
+
     public Task2Manager task2Manager;
+
+    private bool taskCompleted = false;
 
     public void StartTask1()
     {
         task1Panel.SetActive(true);
         feedbackText.text = "";
+        taskCompleted = false;
     }
 
     public void CheckObject(GameObject selectedObject)
     {
+        if (taskCompleted)
+        {
+            return;
+        }
+
         if (selectedObject.CompareTag("Computer"))
         {
-            feedbackText.text = "太棒了！ Great job!";
+            taskCompleted = true;
 
-            task1Panel.SetActive(false);
+            feedbackText.text = "太棒了！\nGreat job!";
 
-            task2Manager.StartTask2();
+            Invoke(nameof(StartTask2), 1.5f);
         }
         else
         {
-            feedbackText.text = "再试一次 Try again";
+            feedbackText.text = "再试一次\nTry again";
+        }
+    }
+
+    private void StartTask2()
+    {
+        task1Panel.SetActive(false);
+
+        if (task2Manager != null)
+        {
+            task2Manager.StartTask2();
         }
     }
 }
