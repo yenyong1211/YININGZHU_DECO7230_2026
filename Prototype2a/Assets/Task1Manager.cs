@@ -5,7 +5,7 @@ public class Task1Manager : MonoBehaviour
 {
     public GameObject task1Panel;
     public TMP_Text feedbackText;
-
+    public GameObject startTaskButton;
     public Task2Manager task2Manager;
 
     private bool taskCompleted = false;
@@ -14,12 +14,7 @@ public class Task1Manager : MonoBehaviour
     {
         task1Panel.SetActive(true);
         feedbackText.text = "";
-
-        if (audioSource != null && taskAudio != null)
-        {
-            audioSource.Stop();
-            audioSource.PlayOneShot(taskAudio);
-        }
+        taskCompleted = false;
     }
 
     public void CheckObject(GameObject selectedObject)

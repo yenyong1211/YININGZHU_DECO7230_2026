@@ -2346,6 +2346,7 @@ struct Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF  : public MonoBeha
 {
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___task1Panel;
 	TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* ___feedbackText;
+	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___startTaskButton;
 	Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3* ___task2Manager;
 	bool ___taskCompleted;
 };
@@ -2366,6 +2367,7 @@ struct UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A  : public MonoBeh
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___introPanel;
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___learningPanel;
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___readyPanel;
+	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___startTaskButton;
 };
 struct Vector3TweenableVariable_t0DF651B487F89825D0D459293C4A862C62C0EBD5  : public TweenableVariableAsyncBase_1_tBC224ABEF15BBD66D75B9D20BED7ADB1F273E430
 {
@@ -4899,9 +4901,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Task2Manager__ctor_mD7EE53F90FFDE60778F1
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_Start_mD61E014A46C7799239D435B3EF4A8E518FA3B56F (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:11>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:13>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___startTaskButton;
+		NullCheck(L_0);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:14>
 		UIFlowManager_ShowIntro_m27D2B34CC0E3278283C62E260F5EDD4B7EEF8E7C(__this, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:12>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:15>
 		return;
 	}
 }
@@ -4909,19 +4915,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_Start_mD61E014A46C7799239D
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_ShowIntro_m27D2B34CC0E3278283C62E260F5EDD4B7EEF8E7C (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:16>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:19>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___introPanel;
 		NullCheck(L_0);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)1, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:17>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:20>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1 = __this->___learningPanel;
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:18>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:21>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = __this->___readyPanel;
 		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:19>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:23>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3 = __this->___startTaskButton;
+		NullCheck(L_3);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_3, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:24>
 		return;
 	}
 }
@@ -4929,44 +4939,28 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_ShowIntro_m27D2B34CC0E3278
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_StartLearning_m07353E43E2737B0CCF2366C98EE07098BFE1570D (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:23>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:28>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___introPanel;
 		NullCheck(L_0);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:24>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:29>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1 = __this->___learningPanel;
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)1, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:25>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:30>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = __this->___readyPanel;
 		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:26>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:32>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3 = __this->___startTaskButton;
+		NullCheck(L_3);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_3, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:33>
 		return;
 	}
 }
 // Method Definition Index: 85120
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_ShowReady_mAFB1E442ADE6080B6375D8A8CFD98A0DD5E888D7 (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
-{
-	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:30>
-		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___introPanel;
-		NullCheck(L_0);
-		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:31>
-		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1 = __this->___learningPanel;
-		NullCheck(L_1);
-		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:32>
-		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = __this->___readyPanel;
-		NullCheck(L_2);
-		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)1, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:33>
-		return;
-	}
-}
-// Method Definition Index: 85121
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_StartMission_m45C709024BA05AAE0FF41E05CD862D1EF07D287C (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
 {
 	{
 		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:37>
@@ -4980,8 +4974,36 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_StartMission_m45C709024BA0
 		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:39>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = __this->___readyPanel;
 		NullCheck(L_2);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)1, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:41>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3 = __this->___startTaskButton;
+		NullCheck(L_3);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_3, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:42>
+		return;
+	}
+}
+// Method Definition Index: 85121
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UIFlowManager_StartMission_m45C709024BA05AAE0FF41E05CD862D1EF07D287C (UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A* __this, const RuntimeMethod* method) 
+{
+	{
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:46>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___introPanel;
+		NullCheck(L_0);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:47>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1 = __this->___learningPanel;
+		NullCheck(L_1);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)0, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:48>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = __this->___readyPanel;
+		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:40>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:50>
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3 = __this->___startTaskButton;
+		NullCheck(L_3);
+		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_3, (bool)1, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/UIFlowManager.cs:51>
 		return;
 	}
 }
@@ -5014,32 +5036,47 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WordCardTrigger_ShowCard_mD306FCF7D5674E
 	{
 		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:10>
 		ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94* L_0 = __this->___wordCardManager;
-		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
-		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
-		NullCheck(L_0);
-		ObjectWordCard_ShowWordCard_m7394DAEA371750DCF9C8152D6A3F24372A75C106(L_0, L_1, NULL);
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:12>
-		Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF* L_2 = __this->___task1Manager;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
-		bool L_3;
-		L_3 = Object_op_Inequality_mD0BE578448EAA61948F25C32F8DD55AB1F778602(L_2, (Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C*)NULL, NULL);
-		if (!L_3)
+		bool L_1;
+		L_1 = Object_op_Inequality_mD0BE578448EAA61948F25C32F8DD55AB1F778602(L_0, (Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C*)NULL, NULL);
+		if (!L_1)
 		{
-			goto IL_0030;
+			goto IL_001f;
 		}
 	}
 	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:14>
-		Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF* L_4 = __this->___task1Manager;
-		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_5;
-		L_5 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
-		NullCheck(L_4);
-		Task1Manager_CheckObject_mF79578EA517325888314C58627A4E459B5134812(L_4, L_5, NULL);
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:12>
+		ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94* L_2 = __this->___wordCardManager;
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
+		L_3 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
+		NullCheck(L_2);
+		ObjectWordCard_ShowWordCard_m7394DAEA371750DCF9C8152D6A3F24372A75C106(L_2, L_3, NULL);
 	}
 
-IL_0030:
+IL_001f:
 	{
-		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:16>
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:15>
+		Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF* L_4 = __this->___task1Manager;
+		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
+		bool L_5;
+		L_5 = Object_op_Inequality_mD0BE578448EAA61948F25C32F8DD55AB1F778602(L_4, (Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C*)NULL, NULL);
+		if (!L_5)
+		{
+			goto IL_003e;
+		}
+	}
+	{
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:17>
+		Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF* L_6 = __this->___task1Manager;
+		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_7;
+		L_7 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
+		NullCheck(L_6);
+		Task1Manager_CheckObject_mF79578EA517325888314C58627A4E459B5134812(L_6, L_7, NULL);
+	}
+
+IL_003e:
+	{
+		//<source_info:/Users/ning/Desktop/7230/YININGZHU_DECO7230_2026/Prototype2a/Assets/WordCardTrigger.cs:19>
 		return;
 	}
 }

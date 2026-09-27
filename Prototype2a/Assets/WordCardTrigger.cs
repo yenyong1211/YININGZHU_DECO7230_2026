@@ -7,7 +7,10 @@ public class WordCardTrigger : MonoBehaviour
 
     public void ShowCard()
     {
-        wordCardManager.ShowWordCard(gameObject);
+        if (wordCardManager != null)
+        {
+            wordCardManager.ShowWordCard(gameObject);
+        }
 
         if (task1Manager != null)
         {

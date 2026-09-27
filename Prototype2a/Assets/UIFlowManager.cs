@@ -6,8 +6,11 @@ public class UIFlowManager : MonoBehaviour
     public GameObject learningPanel;
     public GameObject readyPanel;
 
+    public GameObject startTaskButton;
+
     void Start()
     {
+        startTaskButton.SetActive(false);
         ShowIntro();
     }
 
@@ -16,6 +19,8 @@ public class UIFlowManager : MonoBehaviour
         introPanel.SetActive(true);
         learningPanel.SetActive(false);
         readyPanel.SetActive(false);
+
+        startTaskButton.SetActive(false);
     }
 
     public void StartLearning()
@@ -23,6 +28,8 @@ public class UIFlowManager : MonoBehaviour
         introPanel.SetActive(false);
         learningPanel.SetActive(true);
         readyPanel.SetActive(false);
+
+        startTaskButton.SetActive(false);
     }
 
     public void ShowReady()
@@ -30,6 +37,8 @@ public class UIFlowManager : MonoBehaviour
         introPanel.SetActive(false);
         learningPanel.SetActive(false);
         readyPanel.SetActive(true);
+
+        startTaskButton.SetActive(false);
     }
 
     public void StartMission()
@@ -37,5 +46,7 @@ public class UIFlowManager : MonoBehaviour
         introPanel.SetActive(false);
         learningPanel.SetActive(false);
         readyPanel.SetActive(false);
+
+        startTaskButton.SetActive(true);
     }
 }

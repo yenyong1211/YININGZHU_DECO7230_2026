@@ -12871,6 +12871,7 @@ struct Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF  : public MonoBeha
 {
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___task1Panel;
 	TMP_Text_tE8D677872D43AD4B2AAF0D6101692A17D0B251A9* ___feedbackText;
+	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___startTaskButton;
 	Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3* ___task2Manager;
 	bool ___taskCompleted;
 };
@@ -12920,6 +12921,7 @@ struct UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A  : public MonoBeh
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___introPanel;
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___learningPanel;
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___readyPanel;
+	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* ___startTaskButton;
 };
 struct VideoPlayerRenderTexture_t2654D5CEBB487845DE50F264CE18F1660702A011  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
 {
@@ -17079,15 +17081,15 @@ IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10096[3] =
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10097[6] = 
 {
 	static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___wordHintPanel)),static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___chineseText)),static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___pinyinText)),static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___playerCamera)),static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___heightOffset)),static_cast<int32_t>(offsetof(ObjectWordCard_t8A48E97C8FA67143EF27EC2A671183CD18E3AF94, ___forwardOffset)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10098[4] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10098[5] = 
 {
-	static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___task1Panel)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___feedbackText)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___task2Manager)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___taskCompleted)),};
+	static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___task1Panel)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___feedbackText)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___startTaskButton)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___task2Manager)),static_cast<int32_t>(offsetof(Task1Manager_tB187D89740513F95A386E91EE37279E80D56FFCF, ___taskCompleted)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10099[6] = 
 {
 	static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___task2Panel)),static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___feedbackText)),static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___audioSource)),static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___taskAudio)),static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___successAudio)),static_cast<int32_t>(offsetof(Task2Manager_t6B62A56475C8D44DF9F9BDC257B3D0268CEAEFE3, ___taskCompleted)),};
-IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10100[3] = 
+IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10100[4] = 
 {
-	static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___introPanel)),static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___learningPanel)),static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___readyPanel)),};
+	static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___introPanel)),static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___learningPanel)),static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___readyPanel)),static_cast<int32_t>(offsetof(UIFlowManager_t85C45E4E3E0FD40EEB07D8303A44A450A4FBB33A, ___startTaskButton)),};
 IL2CPP_EXTERN_C const int32_t g_FieldOffsetTable10101[2] = 
 {
 	static_cast<int32_t>(offsetof(WordCardTrigger_t8EB7EC1A9E76AFBF42A01A5562B8A2638E956028, ___wordCardManager)),static_cast<int32_t>(offsetof(WordCardTrigger_t8EB7EC1A9E76AFBF42A01A5562B8A2638E956028, ___task1Manager)),};
