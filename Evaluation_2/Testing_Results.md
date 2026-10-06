@@ -42,7 +42,7 @@
 | Difficult word(s) | 找到, 拿起 |
 
 **Observation / Feedback:**  
-P1 used the audio button on most cards. Concrete nouns such as **书** and **电脑** were easier to remember than action words. The participant said audio was useful because they did not know how the Chinese characters should sound.
+P1 used the audio button on most cards. Concrete nouns such as **书** and **电脑** were easier to remember than action words. The participant said audio was useful because he did not know how the Chinese characters should sound.
 
 ### Stage 2 — Explore the Room
 
@@ -55,7 +55,7 @@ P1 used the audio button on most cards. Concrete nouns such as **书** and **电
 | Needed help | Yes |
 
 **Observation / Feedback:**  
-P1 looked around before trying to interact. After selecting one object and seeing a word card, they realised objects could be clicked. They also noticed that only some objects had review cards and that the room cards had no pronunciation audio.
+P1 looked around before trying to interact. After selecting one object and seeing a word card, he realised objects could be clicked. P1 also noticed that only some objects had review cards and that the room cards had no pronunciation audio.
 
 ### In-game Task 1 — 找到电脑
 
@@ -140,7 +140,7 @@ Because the Task 2 card did not appear automatically, the tester manually presen
 | Difficult word(s) | 桌子, 找到 |
 
 **Observation / Feedback:**  
-P2 understood the learning UI quickly and used audio only for unfamiliar words. They reported remembering the visual shape of **书** and **电脑** more easily than longer or more complex-looking words.
+P2 understood the learning UI quickly and used audio only for unfamiliar words. P2 reported remembering the visual shape of **书** and **电脑** more easily than longer or more complex-looking words.
 
 ### Stage 2 — Explore the Room
 
@@ -153,7 +153,7 @@ P2 understood the learning UI quickly and used audio only for unfamiliar words. 
 | Needed help | No |
 
 **Observation / Feedback:**  
-P2 deliberately clicked several objects as a quick review before starting the task. They noticed that only three objects produced cards and said it would be more useful if all learned objects could be reviewed. They also looked for an audio replay option but none was available.
+P2 deliberately clicked several objects as a quick review before starting the task. P2 noticed that only three objects produced cards and said it would be more useful if all learned objects could be reviewed. P2 also looked for an audio replay option but none was available.
 
 ### In-game Task 1 — 找到电脑
 
@@ -238,7 +238,7 @@ P2 could complete the grab once the tester manually gave the Task 2 instruction.
 | Difficult word(s) | 找到, 拿起, 桌子 |
 
 **Observation / Feedback:**  
-P3 relied heavily on English and said they were mainly reading the English meaning rather than the characters. This suggests English was visually dominant for this beginner.
+P3 relied heavily on English and said she were mainly reading the English meaning rather than the characters. This suggests English was visually dominant for this beginner.
 
 ### Stage 2 — Explore the Room
 
@@ -251,7 +251,7 @@ P3 relied heavily on English and said they were mainly reading the English meani
 | Needed help | Yes |
 
 **Observation / Feedback:**  
-P3 moved around but did not initially understand that objects were selectable. After a hint, they used the available cards. They noticed the inconsistency that some objects had cards and others did not, and that no sound could be replayed.
+P3 moved around but did not initially understand that objects were selectable. After a hint, she used the available cards. She noticed the inconsistency that some objects had cards and others did not, and that no sound could be replayed.
 
 ### In-game Task 1 — 找到电脑
 
@@ -266,7 +266,7 @@ P3 moved around but did not initially understand that objects were selectable. A
 | Automatically moved to Task 2 | No |
 
 **Observation / Feedback:**  
-P3 eventually selected the computer but later explained they had been guessing. Because the system gave no correct / incorrect response, it was difficult to distinguish language understanding from random exploration.
+P3 eventually selected the computer but later explained she had been guessing. Because the system gave no correct / incorrect response, it was difficult to distinguish language understanding from random exploration.
 
 ### In-game Task 2 — 拿起书
 
@@ -281,7 +281,7 @@ P3 eventually selected the computer but later explained they had been guessing. 
 | Controller difficulty | Moderate |
 
 **Observation / Feedback:**  
-P3 recognised **书** but not **拿起**. After a click did not achieve anything, they experimented with grabbing and then understood the intended action.
+P3 recognised **书** but not **拿起**. After a click did not achieve anything, she experimented with grabbing and then understood the intended action.
 
 ### Post-test Results
 
@@ -335,7 +335,7 @@ P3 recognised **书** but not **拿起**. After a click did not achieve anything
 | Difficult word(s) | 找到, 拿起 |
 
 **Observation / Feedback:**  
-P4 already recognised **书** and **电脑**, but still found the action words less familiar. They used the audio button especially for verbs.
+P4 already recognised **书** and **电脑**, but still found the action words less familiar. He used the audio button especially for verbs.
 
 ### Stage 2 — Explore the Room
 
@@ -431,7 +431,7 @@ P4 understood **拿起书** and could grab successfully once the instruction was
 | Difficult word(s) | 拿起 |
 
 **Observation / Feedback:**  
-P5 could read some Pinyin and relied on it more than English. They already knew several basic nouns but were less certain about **拿起**.
+P5 could read some Pinyin and relied on it more than English. P5 already knew several basic nouns but were less certain about **拿起**.
 
 ### Stage 2 — Explore the Room
 
@@ -474,7 +474,8 @@ P5 selected the computer correctly, then selected it again after no response. Th
 | Controller difficulty | Moderate |
 
 **Observation / Feedback:**  
-P5 understood **书** but was unsure about **拿起**. After physically grabbing the book, they connected the action with the word and said this interaction helped them understand the meaning.
+P5 understood **书** but was unsure about **拿起**. After physically grabbing the book, P5
+connected the action with the word and said this interaction helped his understand the meaning.
 
 ### Post-test Results
 
