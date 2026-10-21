@@ -3,7 +3,6 @@ using UnityEngine; // 导入 UnityEngine 命名空间 / Import the UnityEngine n
 using UnityEngine.XR.Interaction.Toolkit; // 导入 UnityEngine.XR.Interaction.Toolkit 命名空间 / Import the UnityEngine.XR.Interaction.Toolkit namespace.
 using UnityEngine.XR.Interaction.Toolkit.Interactables; // 导入 UnityEngine.XR.Interaction.Toolkit.Interactables 命名空间 / Import the UnityEngine.XR.Interaction.Toolkit.Interactables namespace.
 
-    // 说明：DeskStationery 的实现说明 / Implementation note: Persisted visuals are visible in Scene view; physics and XR are configured in Play mode.
 [ExecuteAlways] // 声明组件或编辑器入口的元数据 / Declare component or editor-entry metadata.
 [DefaultExecutionOrder(-100)] // 声明组件或编辑器入口的元数据 / Declare component or editor-entry metadata.
 public class DeskStationery : MonoBehaviour // 声明 DeskStationery 组件或辅助类型 / Declare the DeskStationery component or helper type.
@@ -89,7 +88,6 @@ public class DeskStationery : MonoBehaviour // 声明 DeskStationery 组件或�
         var word = go.GetComponent<LookWord>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
         if (word == null) word = go.AddComponent<LookWord>(); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
         word.chinese=chinese; word.pinyin=pinyin; word.english=english; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-    // 说明：DeskStationery 的实现说明 / Implementation note: Container colliders follow its walls, leaving the inside open for the pen.
         if (openContainer) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
         { // 开始代码块 / Begin the block.
             foreach (var renderer in go.GetComponentsInChildren<MeshRenderer>()) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.

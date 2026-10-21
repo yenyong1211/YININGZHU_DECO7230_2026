@@ -25,32 +25,39 @@ public class TaskFeedback : MonoBehaviour // 声明 TaskFeedback 组件或辅助
         speaker.playOnAwake = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
         speaker.spatialBlend = 0f; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
         speaker.volume = 0.65f; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        var root = new GameObject("Player Task Feedback", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup)); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        panel = root.GetComponent<RectTransform>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        panel.SetParent(transform, false); // 执行 TaskFeedback 的当前操作 / Perform the current TaskFeedback operation.
-        panel.sizeDelta = new Vector2(720, 200); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        panel.localScale = Vector3.one * 0.001f; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        var canvas = root.GetComponent<Canvas>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        canvas.renderMode = RenderMode.WorldSpace; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        canvas.sortingOrder = 100; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        group = root.GetComponent<CanvasGroup>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        group.alpha = 0; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        group.interactable = group.blocksRaycasts = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        var background = root.AddComponent<Image>(); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        background.color = new Color(0.025f, 0.04f, 0.07f, 0.95f); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        background.raycastTarget = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        var textObject = new GameObject("Result", typeof(RectTransform)); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        textObject.transform.SetParent(panel, false); // 执行 TaskFeedback 的当前操作 / Perform the current TaskFeedback operation.
-        var rect = textObject.GetComponent<RectTransform>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        rect.anchorMin = Vector2.zero; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        rect.anchorMax = Vector2.one; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        rect.offsetMin = new Vector2(24, 16); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        rect.offsetMax = new Vector2(-24, -16); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        label = textObject.AddComponent<TextMeshProUGUI>(); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        label.fontSize = 38; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        label.alignment = TextAlignmentOptions.Center; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        label.raycastTarget = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-    } // 结束代码块 / End the block.
+        label = CreatePanel(transform, "Player Task Feedback", new Vector2(720, 200), new Vector2(24, 16), 38, 100, new Color(.025f, .04f, .07f, .95f)); // 创建原尺寸和颜色的反馈界面 / Create feedback UI with its existing size and colour.
+        panel = (RectTransform)label.transform.parent; // 保存反馈面板位置引用 / Keep the feedback panel transform.
+        group = panel.gameObject.AddComponent<CanvasGroup>(); // 控制整块反馈的淡入淡出 / Control fading of the whole feedback panel.
+        group.alpha = 0; // 初始隐藏反馈 / Hide feedback initially.
+        group.interactable = group.blocksRaycasts = false; // 文字反馈不拦截操作 / Feedback must not intercept interaction.
+    } // 完成反馈初始化 / Finish feedback setup.
+
+    public static TMP_Text CreatePanel(Transform parent, string name, Vector2 size, Vector2 padding, float fontSize, int order, Color colour) // 共用任务与反馈的界面创建代码 / Share UI construction between tasks and feedback.
+    { // 开始创建世界空间界面 / Begin creating world-space UI.
+        var root = new GameObject(name, typeof(RectTransform), typeof(Canvas)); // 创建面板和画布 / Create the panel and canvas.
+        var rect = root.GetComponent<RectTransform>(); // 取得面板布局 / Get the panel layout.
+        rect.SetParent(parent, false); // 放到指定父物体下 / Attach to the requested parent.
+        rect.sizeDelta = size; // 保留调用者指定的面板尺寸 / Use the requested panel size.
+        rect.localScale = Vector3.one * .001f; // 把界面像素尺寸转换为世界尺寸 / Convert UI pixel dimensions to world dimensions.
+        var canvas = root.GetComponent<Canvas>(); // 取得画布设置 / Get the canvas settings.
+        canvas.renderMode = RenderMode.WorldSpace; // 在 VR 世界中显示 / Display inside the VR world.
+        canvas.sortingOrder = order; // 保留任务与反馈的显示顺序 / Preserve task and feedback draw order.
+        var background = root.AddComponent<Image>(); // 创建背景 / Create the background.
+        background.color = colour; // 使用原来的背景颜色 / Use the original background colour.
+        background.raycastTarget = false; // 背景不拦截控制器射线 / Do not block controller rays.
+        var textObject = new GameObject("Message", typeof(RectTransform), typeof(TextMeshProUGUI)); // 创建文字物体 / Create the text object.
+        textObject.transform.SetParent(rect, false); // 把文字放在面板内 / Place text inside the panel.
+        var textRect = textObject.GetComponent<RectTransform>(); // 取得文字布局 / Get the text layout.
+        textRect.anchorMin = Vector2.zero; // 锚定左下角 / Anchor the bottom-left corner.
+        textRect.anchorMax = Vector2.one; // 锚定右上角 / Anchor the top-right corner.
+        textRect.offsetMin = padding; // 保留左下留白 / Preserve bottom-left padding.
+        textRect.offsetMax = -padding; // 保留右上留白 / Preserve top-right padding.
+        var text = textObject.GetComponent<TextMeshProUGUI>(); // 取得 TMP 文字 / Get the TMP text.
+        text.fontSize = fontSize; // 保留原字号 / Preserve the original font size.
+        text.alignment = TextAlignmentOptions.Center; // 保持居中 / Keep text centred.
+        text.raycastTarget = false; // 文字不拦截射线 / Do not intercept rays with text.
+        return text; // 返回可填写内容的文字组件 / Return the text component for messages.
+    } // 完成界面创建 / Finish creating the panel.
 
     public void Show(bool success, string message, TMP_Text fontSource) // 显示双语反馈并播放对应音效 / Display bilingual feedback and play its sound.
     { // 开始代码块 / Begin the block.

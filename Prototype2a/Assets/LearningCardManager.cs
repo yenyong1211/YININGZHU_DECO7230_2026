@@ -10,8 +10,7 @@ public class LearningCardManager : MonoBehaviour // 声明 LearningCardManager �
     public TMP_Text progressText; // 类别和学习进度文字引用 / Category and learning progress text reference.
     public UIFlowManager uiFlowManager; // 执行 LearningCardManager 的当前操作 / Perform the current LearningCardManager operation.
     public AudioSource audioSource; // 执行 LearningCardManager 的当前操作 / Perform the current LearningCardManager operation.
-    // 说明：LearningCardManager 的实现说明 / Implementation note: Existing scene recordings: book, table, computer, find, pick up.
-    public AudioClip[] wordAudioClips; // 原场景的五段词语录音，保留原索引 / Five original word recordings with their original indices.
+    public AudioClip[] wordAudioClips; // 保留原五段录音，并追加书包与放进 / Keep the original five clips and append school bag and put into.
 
     private sealed class Word // 声明 LearningCardManager 组件或辅助类型 / Declare the LearningCardManager component or helper type.
     { // 开始代码块 / Begin the block.
@@ -27,10 +26,10 @@ public class LearningCardManager : MonoBehaviour // 声明 LearningCardManager �
     { // 开始代码块 / Begin the block.
         new Word("书", "shū", "book", "物品", 0), // 学习词语“书”：拼音与英文释义对应 / Vocabulary 书: shū / book.
         new Word("电脑", "diàn nǎo", "computer", "物品", 2), // 学习词语“电脑”：拼音与英文释义对应 / Vocabulary 电脑: diàn nǎo / computer.
-        new Word("书包", "shū bāo", "school bag", "物品"), // 学习词语“书包”：拼音与英文释义对应 / Vocabulary 书包: shū bāo / school bag.
+        new Word("书包", "shū bāo", "school bag", "物品", 5), // 学习词语“书包”：拼音与英文释义对应 / Vocabulary 书包: shū bāo / school bag.
         new Word("找到", "zhǎo dào", "find", "动作", 3), // 学习词语“找到”：拼音与英文释义对应 / Vocabulary 找到: zhǎo dào / find.
         new Word("拿起", "ná qǐ", "pick up", "动作", 4), // 学习词语“拿起”：拼音与英文释义对应 / Vocabulary 拿起: ná qǐ / pick up.
-        new Word("放进", "fàng jìn", "put into", "动作"), // 学习词语“放进”：拼音与英文释义对应 / Vocabulary 放进: fàng jìn / put into.
+        new Word("放进", "fàng jìn", "put into", "动作", 6), // 学习词语“放进”：拼音与英文释义对应 / Vocabulary 放进: fàng jìn / put into.
     }; // 结束代码块 / End the block.
 
     private int currentIndex; // 当前显示的词语索引 / Index of the currently displayed word.
