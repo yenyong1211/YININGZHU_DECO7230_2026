@@ -184,7 +184,7 @@ public class DeskFlowVerification : MonoBehaviour // 声明 DeskFlowVerification
         adventure = FindFirstObjectByType<DeskAdventure>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
         Check(adventure != null && adventure.CurrentStage == DeskAdventure.Stage.Chase, "Task1 transitions to escaping red book"); // 当前回合阶段，只允许组件内部修改 / Current round stage, writable only inside this component.
         Check(adventure.MissionText != null && adventure.MissionText.font != null, "Task2 HUD has a valid font");
-        Check(adventure.MissionText.transform.parent.GetComponent<UnityEngine.UI.Image>().color.a == 1f && adventure.MissionText.GetComponentInParent<FrontPanel>() != null, "Task2 card is opaque and uses foreground rendering"); // 验证不透明前景任务卡 / Verify opaque foreground instructions.
+        Check(adventure.MissionText.transform.parent.GetComponent<UnityEngine.UI.Image>().color.a == 1f, "Task2 card has an opaque background"); // 验证不透明前景任务卡 / Verify opaque foreground instructions.
         Check(Resources.Load<Shader>("DeskUI/PanelOverlay") != null && Resources.Load<Shader>("DeskUI/TextOverlay") != null, "Foreground shaders included in Resources"); // 验证头显构建包含所需着色器 / Verify shader inclusion for headset builds. // 记录通过项或在断言失败时终止测试 / Record a pass or fail the test on a false assertion.
         Check(second.instructionText.text.Contains("红书"), "Original Task2 panel shows the current objective"); // 原任务面板中的当前中文指令 / Current Chinese objective in the original task panel.
         foreach (char c in adventure.Mission()) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.

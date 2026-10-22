@@ -14,19 +14,44 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
     public XRGrabInteractable TargetBook => book; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
     public BoxCollider BagVolume => bagVolume; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
     public TMP_Text MissionText => hud; // 持续显示的任务文字 / Persistent objective text.
-    private XRGrabInteractable book; // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+    private XRGrabInteractable book; // 需要抓住并装包的目标红书 / Target red book to catch and pack.
     private Rigidbody bookBody; // 目标红书的刚体引用 / Target red book rigidbody reference.
     private Transform bookParent, bag, mascot; // 红书最初的父物体 / Original parent of the red book.
     private Vector3 home, bookScale; // 物品初始位置，用于移动和复位 / Original item position for movement and reset.
     private Quaternion bookRotation; // 原书旋转，用于复位 / Original book rotation for restoration.
-    private bool originalKinematic, originalGravity, originalThrow; // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+    private bool originalKinematic, originalGravity, originalThrow; // 记住红书原来的运动、重力和抛掷设置，结束时恢复 / Save original motion, gravity and throwing settings for restoration.
     private GameObject props; // 当前回合生成的模型副本 / Model instance generated for the current round.
     private BoxCollider bagVolume; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
     private TMP_Text hud; // 持续显示的任务文字 / Persistent objective text.
-    private Task2Manager task; // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+    private Task2Manager task; // 联系第二关管理器，更新任务并通知完成 / Access Task2 to update the objective and report completion.
     private Camera view; // 玩家当前使用的主摄像机 / Main camera currently used by the player.
     private float remaining, elapsed, settled, nextHintTime; // 下一次允许显示纠错提示的时刻 / Next allowed time for a correction hint.
     private readonly List<Transform> labels = new List<Transform>(); // 需要面向玩家的物品标签集合 / Object labels that must face the player.
+
+    private readonly Dictionary<Material, Material> frontMaterials = new Dictionary<Material, Material>(); // 不修改共享字体资源 / Do not modify shared font assets.
+    void OnEnable() { Canvas.willRenderCanvases += DrawInFront; } // 在界面重建后设置显示材质 / Apply materials after UI rebuilds.
+    void OnDisable() { Canvas.willRenderCanvases -= DrawInFront; } // 停用时解除监听 / Unsubscribe when disabled.
+    void DrawInFront() // 同时处理主字体和中文后备字体 / Handle both main and fallback font materials.
+    {
+        if (hud == null || !hud.gameObject.activeInHierarchy) return; // 只处理本局正在显示的任务面板 / Process only the active task panel for this round.
+        foreach (var graphic in hud.transform.parent.GetComponentsInChildren<Graphic>()) // 遍历本面板界面元素 / Visit this panel's UI elements.
+        {
+            bool text = graphic is TMP_Text || graphic is TMP_SubMeshUI; // 区分文字与背景 / Distinguish text from backgrounds.
+            for (int i = 0; i < graphic.canvasRenderer.materialCount; i++) // 包含中文后备字体材质 / Include fallback font materials.
+            {
+                var source = graphic.canvasRenderer.GetMaterial(i); // 获取实际渲染材质 / Get the rendered material.
+                if (source == null || source.shader.name.StartsWith("DeskUI/")) continue; // 已处理则保留 / Keep materials already processed.
+                if (!frontMaterials.TryGetValue(source, out var copy)) // 每个来源只创建一次 / Create each material copy once.
+                {
+                    copy = new Material(source); // 保留字体图集与参数 / Preserve font atlas and properties.
+                    copy.shader = Resources.Load<Shader>(text ? "DeskUI/TextOverlay" : "DeskUI/PanelOverlay"); // 忽略场景深度遮挡 / Ignore scene depth occlusion.
+                    copy.renderQueue = 4000; // 在普通场景之后绘制 / Draw after the normal scene.
+                    frontMaterials.Add(source, copy); // 缓存复用 / Cache for reuse.
+                }
+                graphic.canvasRenderer.SetMaterial(copy, i); // 应用到当前画布元素 / Apply to this canvas element.
+            }
+        }
+    }
 
     public void Begin(Task2Manager owner) // 重置并开始一局抓红书装包游戏 / Reset and begin a catch-and-pack round.
     {
@@ -38,7 +63,7 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
         {
             if (word.english != "book") continue; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
             book = word.GetComponent<XRGrabInteractable>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-            break; // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+            break; // 已找到目标红书，不再继续寻找 / Stop searching after finding the target book.
         }
         if (book == null) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
         {
@@ -93,7 +118,7 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
         scale.z *= Mathf.Max(1f, (bounds.size.z + .04f) / (.20f * Mathf.Abs(bag.lossyScale.z))); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
         bag.localScale = scale; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
         var target = new GameObject("Bag interior target"); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        target.transform.SetParent(bag, false); // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+        target.transform.SetParent(bag, false); // 把检测区域放到书包内部，跟随书包移动 / Parent the detection area to the bag so it moves with it.
         target.transform.localPosition = new Vector3(0f, .08f, 0f); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
         bagVolume = target.AddComponent<BoxCollider>(); // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
         bagVolume.isTrigger = true; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
@@ -101,16 +126,15 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
     }
 
     void CreateHUD() // 使用共用方法创建任务提示 / Create task instructions through the shared UI method.
-    { // 开始创建任务提示 / Begin task UI setup.
+    {
         hud = TaskFeedback.CreatePanel(props.transform, "Task2 Instructions", new Vector2(900, 230), new Vector2(16, 8), 32, 110, new Color(.02f, .04f, .08f, 1f)); // 保留任务面板原来的尺寸、留白和外观 / Preserve the existing task panel size, padding and appearance.
-        hud.transform.parent.gameObject.AddComponent<FrontPanel>(); // 在模型前显示不透明任务卡 / Show the opaque task card in front of models.
         if (task.feedbackText != null) hud.font = task.feedbackText.font; // 继续使用原中文字体 / Keep the existing Chinese font.
-    } // 完成任务提示创建 / Finish task UI setup.
+    }
 
     void Label(Transform target, string text, float height) // 为场景物品建立双语标签 / Create a bilingual label for a scene object.
     {
         var root = new GameObject("Label", typeof(TextMeshPro)); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        root.transform.SetParent(target, false); // 执行 DeskAdventure 的当前操作 / Perform the current DeskAdventure operation.
+        root.transform.SetParent(target, false); // 把名称文字挂到对应物品下面 / Attach the name label to its object.
         root.transform.localScale = new Vector3(1f / target.lossyScale.x, 1f / target.lossyScale.y, 1f / target.lossyScale.z); // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
         root.transform.position = target.position + Vector3.up * height; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
         var label = root.GetComponent<TextMeshPro>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
@@ -225,7 +249,7 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
     }
 
     void CreateExitButton() // 创建手柄可点击的退出按钮 / Create a controller-clickable exit button.
-    { // 开始创建退出界面 / Begin exit UI setup.
+    {
         var panel = (RectTransform)hud.transform.parent; // 使用现有结束画面 / Use the existing result panel.
         panel.gameObject.AddComponent<TrackedDeviceGraphicRaycaster>(); // 接受 XR 控制器射线 / Accept XR controller rays.
         panel.gameObject.AddComponent<GraphicRaycaster>(); // 同时支持编辑器鼠标 / Also support the editor mouse.
@@ -250,16 +274,16 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
         label.font = hud.font; label.fontSize = 36; // 复用中文字体 / Reuse the Chinese font.
         label.text = "退出游戏 / Exit"; // 显示退出标签 / Show the exit label.
         label.alignment = TextAlignmentOptions.Center; label.raycastTarget = false; // 文字居中且不拦截按钮 / Centre text without intercepting button input.
-    } // 完成退出按钮 / Finish the exit button.
+    }
 
     public void ExitGame() // 退出应用，编辑器中停止测试 / Quit the app or stop the editor test.
-    { // 开始退出 / Begin exit.
+    {
 #if UNITY_EDITOR // 编辑器专用路径 / Editor-only path.
         UnityEditor.EditorApplication.isPlaying = false; // 停止 Play 模式 / Stop Play mode.
 #else // 头显安装版路径 / Installed headset build path.
         Application.Quit(); // 关闭当前应用 / Close the application.
 #endif // 结束平台选择 / End platform selection.
-    } // 完成退出 / End exit.
+    }
 
     void ExplainBagAttempt() // 解释未松手或放错绿书的情况 / Explain held-book and wrong-book attempts.
     {
@@ -322,6 +346,9 @@ public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅�
         if (book != null) book.selectExited.RemoveListener(BookReleased); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
         RestoreBook(); // 取消抓取并复位原书的姿态与物理状态 / Cancel selection and restore the book pose and physics.
         if (props != null) { props.SetActive(false); Destroy(props); } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        foreach (var material in frontMaterials.Values) Destroy(material); // 释放本局前景材质 / Release foreground materials from this round.
+        frontMaterials.Clear(); // 重玩时重新建立材质缓存 / Rebuild the material cache for a new round.
+        hud = null; // 防止绘制回调访问已清理的提示卡 / Prevent render callbacks from accessing the cleared panel.
         labels.Clear(); // 需要面向玩家的物品标签集合 / Object labels that must face the player.
         props = null; // 当前回合生成的模型副本 / Model instance generated for the current round.
         book = null; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
