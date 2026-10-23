@@ -12,6 +12,9 @@ extern void DeskAdventure_set_CurrentStage_m1497DBE4CAA4EA8133F5B849BB2ED39FD21A
 extern void DeskAdventure_get_TargetBook_mD5B3C583E57121D814FB5FAB422116DD77A31D34 (void);
 extern void DeskAdventure_get_BagVolume_m49A9E2F6BCD4FB4D3986B66861EF4B5228E9654C (void);
 extern void DeskAdventure_get_MissionText_mE4CCCD022DBC4D415DB7B684B12D91DC26E9C65A (void);
+extern void DeskAdventure_OnEnable_mBC97ADB8A2227552B9E9014D0703AAE0950A0DC4 (void);
+extern void DeskAdventure_OnDisable_m472BA6B35808DF3CD4E7270AC5257A7D50853DBA (void);
+extern void DeskAdventure_DrawInFront_mACB70D7479E90EE7A9215003DEF227CF9661784B (void);
 extern void DeskAdventure_Begin_mFB8302C91391EC015987B80FED003DB71A29CB95 (void);
 extern void DeskAdventure_FitBag_m427AD39E94230B5907AF9A0418956A14DFED5686 (void);
 extern void DeskAdventure_CreateHUD_m9B959E99B358A28E3ECF891CFC131FE2DCD8784C (void);
@@ -113,6 +116,7 @@ extern void UIFlowManager_Start_mD61E014A46C7799239D435B3EF4A8E518FA3B56F (void)
 extern void UIFlowManager_ShowPanel_m372CA2161BDD528CF15BC48664A33C43412A2BC3 (void);
 extern void UIFlowManager_ShowIntro_m27D2B34CC0E3278283C62E260F5EDD4B7EEF8E7C (void);
 extern void UIFlowManager_StartLearning_m07353E43E2737B0CCF2366C98EE07098BFE1570D (void);
+extern void UIFlowManager_BeginVocabulary_mA4FE29DC7FE3BFCF4B113045558A0A9750CE29FC (void);
 extern void UIFlowManager_ShowReady_mAFB1E442ADE6080B6375D8A8CFD98A0DD5E888D7 (void);
 extern void UIFlowManager_StartMission_m45C709024BA05AAE0FF41E05CD862D1EF07D287C (void);
 extern void UIFlowManager__ctor_m99CAE9CDA5EB53233651D90CDD99C95A981DAB2D (void);
@@ -271,13 +275,16 @@ extern void XRPokeFollowAffordanceFill_OnTransformTweenableVariableUpdated_m8B3C
 extern void XRPokeFollowAffordanceFill_OnPokeStrengthChanged_m480B681A9BE7B6C71724392FC3368A029EA4CED6 (void);
 extern void XRPokeFollowAffordanceFill_OnPokeStateDataUpdated_m6233708D9CEEA9A7920B821FDBD306F4D7CBFAE6 (void);
 extern void XRPokeFollowAffordanceFill__ctor_mAED1746F6E90C5676967671BFBB11E3B7C6B1E98 (void);
-static Il2CppMethodPointer s_methodPointers[264] = 
+static Il2CppMethodPointer s_methodPointers[268] = 
 {
 	DeskAdventure_get_CurrentStage_m47E3DC6963650F53C2EDCFCF9C8E8D5A330A42F6,
 	DeskAdventure_set_CurrentStage_m1497DBE4CAA4EA8133F5B849BB2ED39FD21A2D9E,
 	DeskAdventure_get_TargetBook_mD5B3C583E57121D814FB5FAB422116DD77A31D34,
 	DeskAdventure_get_BagVolume_m49A9E2F6BCD4FB4D3986B66861EF4B5228E9654C,
 	DeskAdventure_get_MissionText_mE4CCCD022DBC4D415DB7B684B12D91DC26E9C65A,
+	DeskAdventure_OnEnable_mBC97ADB8A2227552B9E9014D0703AAE0950A0DC4,
+	DeskAdventure_OnDisable_m472BA6B35808DF3CD4E7270AC5257A7D50853DBA,
+	DeskAdventure_DrawInFront_mACB70D7479E90EE7A9215003DEF227CF9661784B,
 	DeskAdventure_Begin_mFB8302C91391EC015987B80FED003DB71A29CB95,
 	DeskAdventure_FitBag_m427AD39E94230B5907AF9A0418956A14DFED5686,
 	DeskAdventure_CreateHUD_m9B959E99B358A28E3ECF891CFC131FE2DCD8784C,
@@ -379,6 +386,7 @@ static Il2CppMethodPointer s_methodPointers[264] =
 	UIFlowManager_ShowPanel_m372CA2161BDD528CF15BC48664A33C43412A2BC3,
 	UIFlowManager_ShowIntro_m27D2B34CC0E3278283C62E260F5EDD4B7EEF8E7C,
 	UIFlowManager_StartLearning_m07353E43E2737B0CCF2366C98EE07098BFE1570D,
+	UIFlowManager_BeginVocabulary_mA4FE29DC7FE3BFCF4B113045558A0A9750CE29FC,
 	UIFlowManager_ShowReady_mAFB1E442ADE6080B6375D8A8CFD98A0DD5E888D7,
 	UIFlowManager_StartMission_m45C709024BA05AAE0FF41E05CD862D1EF07D287C,
 	UIFlowManager__ctor_m99CAE9CDA5EB53233651D90CDD99C95A981DAB2D,
@@ -544,18 +552,21 @@ extern void TrackedRotation_SetBaseFromVector_m0CAD68507FD5C7AA3C7CAE09720645F03
 extern void TrackedRotation_SetTargetFromVector_m42F1586C38A41E0FB628220D326B1572BB8F80D7_AdjustorThunk (void);
 static Il2CppTokenAdjustorThunkPair s_adjustorThunks[4] = 
 {
-	{ 0x060000EC, TrackedRotation_get_totalOffset_mC129829FFE6CDD96C8885030BDAEF40D569F06C8_AdjustorThunk },
-	{ 0x060000ED, TrackedRotation_Reset_m54545DE2D01827833956AEC4324C136A0CB72425_AdjustorThunk },
-	{ 0x060000EE, TrackedRotation_SetBaseFromVector_m0CAD68507FD5C7AA3C7CAE09720645F033F1D26E_AdjustorThunk },
-	{ 0x060000EF, TrackedRotation_SetTargetFromVector_m42F1586C38A41E0FB628220D326B1572BB8F80D7_AdjustorThunk },
+	{ 0x060000F0, TrackedRotation_get_totalOffset_mC129829FFE6CDD96C8885030BDAEF40D569F06C8_AdjustorThunk },
+	{ 0x060000F1, TrackedRotation_Reset_m54545DE2D01827833956AEC4324C136A0CB72425_AdjustorThunk },
+	{ 0x060000F2, TrackedRotation_SetBaseFromVector_m0CAD68507FD5C7AA3C7CAE09720645F033F1D26E_AdjustorThunk },
+	{ 0x060000F3, TrackedRotation_SetTargetFromVector_m42F1586C38A41E0FB628220D326B1572BB8F80D7_AdjustorThunk },
 };
-static const int32_t s_InvokerIndices[264] = 
+static const int32_t s_InvokerIndices[268] = 
 {
 	17428,
 	13331,
 	17502,
 	17502,
 	17502,
+	17718,
+	17718,
+	17718,
 	13404,
 	17718,
 	17718,
@@ -655,6 +666,7 @@ static const int32_t s_InvokerIndices[264] =
 	17502,
 	17718,
 	13404,
+	17718,
 	17718,
 	17718,
 	17718,
@@ -820,7 +832,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	264,
+	268,
 	s_methodPointers,
 	4,
 	s_adjustorThunks,

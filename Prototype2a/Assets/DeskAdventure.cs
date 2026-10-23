@@ -1,358 +1,358 @@
-using System.Collections.Generic; // 导入 System.Collections.Generic 命名空间 / Import the System.Collections.Generic namespace.
-using UnityEngine.UI; // 创建可点击退出按钮 / Create a clickable exit button.
-using UnityEngine.XR.Interaction.Toolkit.UI; // 让控制器射线操作界面 / Enable controller rays on UI.
-using TMPro; // 导入 TMPro 命名空间 / Import the TMPro namespace.
-using UnityEngine; // 导入 UnityEngine 命名空间 / Import the UnityEngine namespace.
-using UnityEngine.XR.Interaction.Toolkit; // 导入 UnityEngine.XR.Interaction.Toolkit 命名空间 / Import the UnityEngine.XR.Interaction.Toolkit namespace.
-using UnityEngine.XR.Interaction.Toolkit.Interactables; // 导入 UnityEngine.XR.Interaction.Toolkit.Interactables 命名空间 / Import the UnityEngine.XR.Interaction.Toolkit.Interactables namespace.
+using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
+using TMPro;
+using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class DeskAdventure : MonoBehaviour // 声明 DeskAdventure 组件或辅助类型 / Declare the DeskAdventure component or helper type.
+public class DeskAdventure : MonoBehaviour
 {
-    public enum Stage { Idle, Chase, Pack, Won, TimedOut } // 仅保留未开始、追书、装包、成功和超时五种状态 / Keep only idle, chase, pack, won and timeout states.
-    public Stage CurrentStage { get; private set; } // 当前回合阶段，只允许组件内部修改 / Current round stage, writable only inside this component.
-    public float roundSeconds = 180f; // 每局时间上限，单位秒 / Round time limit in seconds.
-    public XRGrabInteractable TargetBook => book; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-    public BoxCollider BagVolume => bagVolume; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
-    public TMP_Text MissionText => hud; // 持续显示的任务文字 / Persistent objective text.
-    private XRGrabInteractable book; // 需要抓住并装包的目标红书 / Target red book to catch and pack.
-    private Rigidbody bookBody; // 目标红书的刚体引用 / Target red book rigidbody reference.
-    private Transform bookParent, bag, mascot; // 红书最初的父物体 / Original parent of the red book.
-    private Vector3 home, bookScale; // 物品初始位置，用于移动和复位 / Original item position for movement and reset.
-    private Quaternion bookRotation; // 原书旋转，用于复位 / Original book rotation for restoration.
-    private bool originalKinematic, originalGravity, originalThrow; // 记住红书原来的运动、重力和抛掷设置，结束时恢复 / Save original motion, gravity and throwing settings for restoration.
-    private GameObject props; // 当前回合生成的模型副本 / Model instance generated for the current round.
-    private BoxCollider bagVolume; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
-    private TMP_Text hud; // 持续显示的任务文字 / Persistent objective text.
-    private Task2Manager task; // 联系第二关管理器，更新任务并通知完成 / Access Task2 to update the objective and report completion.
-    private Camera view; // 玩家当前使用的主摄像机 / Main camera currently used by the player.
-    private float remaining, elapsed, settled, nextHintTime; // 下一次允许显示纠错提示的时刻 / Next allowed time for a correction hint.
-    private readonly List<Transform> labels = new List<Transform>(); // 需要面向玩家的物品标签集合 / Object labels that must face the player.
+    public enum Stage { Idle, Chase, Pack, Won, TimedOut }
+    public Stage CurrentStage { get; private set; }
+    public float roundSeconds = 180f; // Round time limit in seconds.
+    public XRGrabInteractable TargetBook => book;
+    public BoxCollider BagVolume => bagVolume;
+    public TMP_Text MissionText => hud;
+    private XRGrabInteractable book;
+    private Rigidbody bookBody;
+    private Transform bookParent, bag, mascot;
+    private Vector3 home, bookScale;
+    private Quaternion bookRotation;
+    private bool originalKinematic, originalGravity, originalThrow;
+    private GameObject props;
+    private BoxCollider bagVolume;
+    private TMP_Text hud;
+    private Task2Manager task;
+    private Camera view;
+    private float remaining, elapsed, settled, nextHintTime;
+    private readonly List<Transform> labels = new List<Transform>();
 
-    private readonly Dictionary<Material, Material> frontMaterials = new Dictionary<Material, Material>(); // 不修改共享字体资源 / Do not modify shared font assets.
-    void OnEnable() { Canvas.willRenderCanvases += DrawInFront; } // 在界面重建后设置显示材质 / Apply materials after UI rebuilds.
-    void OnDisable() { Canvas.willRenderCanvases -= DrawInFront; } // 停用时解除监听 / Unsubscribe when disabled.
-    void DrawInFront() // 同时处理主字体和中文后备字体 / Handle both main and fallback font materials.
+    private readonly Dictionary<Material, Material> frontMaterials = new Dictionary<Material, Material>(); // Cache private foreground materials for reuse.
+    void OnEnable() { Canvas.willRenderCanvases += DrawInFront; }
+    void OnDisable() { Canvas.willRenderCanvases -= DrawInFront; }
+    void DrawInFront() // Render task UI over scene geometry without changing shared materials.
     {
-        if (hud == null || !hud.gameObject.activeInHierarchy) return; // 只处理本局正在显示的任务面板 / Process only the active task panel for this round.
-        foreach (var graphic in hud.transform.parent.GetComponentsInChildren<Graphic>()) // 遍历本面板界面元素 / Visit this panel's UI elements.
+        if (hud == null || !hud.gameObject.activeInHierarchy) return;
+        foreach (var graphic in hud.transform.parent.GetComponentsInChildren<Graphic>())
         {
-            bool text = graphic is TMP_Text || graphic is TMP_SubMeshUI; // 区分文字与背景 / Distinguish text from backgrounds.
-            for (int i = 0; i < graphic.canvasRenderer.materialCount; i++) // 包含中文后备字体材质 / Include fallback font materials.
+            bool text = graphic is TMP_Text || graphic is TMP_SubMeshUI;
+            for (int i = 0; i < graphic.canvasRenderer.materialCount; i++)
             {
-                var source = graphic.canvasRenderer.GetMaterial(i); // 获取实际渲染材质 / Get the rendered material.
-                if (source == null || source.shader.name.StartsWith("DeskUI/")) continue; // 已处理则保留 / Keep materials already processed.
-                if (!frontMaterials.TryGetValue(source, out var copy)) // 每个来源只创建一次 / Create each material copy once.
+                var source = graphic.canvasRenderer.GetMaterial(i);
+                if (source == null || source.shader.name.StartsWith("DeskUI/")) continue;
+                if (!frontMaterials.TryGetValue(source, out var copy))
                 {
-                    copy = new Material(source); // 保留字体图集与参数 / Preserve font atlas and properties.
-                    copy.shader = Resources.Load<Shader>(text ? "DeskUI/TextOverlay" : "DeskUI/PanelOverlay"); // 忽略场景深度遮挡 / Ignore scene depth occlusion.
-                    copy.renderQueue = 4000; // 在普通场景之后绘制 / Draw after the normal scene.
-                    frontMaterials.Add(source, copy); // 缓存复用 / Cache for reuse.
+                    copy = new Material(source);
+                    copy.shader = Resources.Load<Shader>(text ? "DeskUI/TextOverlay" : "DeskUI/PanelOverlay");
+                    copy.renderQueue = 4000;
+                    frontMaterials.Add(source, copy);
                 }
-                graphic.canvasRenderer.SetMaterial(copy, i); // 应用到当前画布元素 / Apply to this canvas element.
+                graphic.canvasRenderer.SetMaterial(copy, i);
             }
         }
     }
 
-    public void Begin(Task2Manager owner) // 重置并开始一局抓红书装包游戏 / Reset and begin a catch-and-pack round.
+    public void Begin(Task2Manager owner) // Restore the previous round, find the red book and create round props.
     {
-        StopRound(); // 停止当前回合并清理生成的物品和监听器 / Stop the round and clean up spawned objects and listeners.
-        task = owner; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        var stationery = FindFirstObjectByType<DeskStationery>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        if (stationery != null) stationery.ResetItems(); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        foreach (var word in FindObjectsByType<LookWord>(FindObjectsSortMode.None)) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.
+        StopRound();
+        task = owner;
+        var stationery = FindFirstObjectByType<DeskStationery>();
+        if (stationery != null) stationery.ResetItems();
+        foreach (var word in FindObjectsByType<LookWord>(FindObjectsSortMode.None))
         {
-            if (word.english != "book") continue; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-            book = word.GetComponent<XRGrabInteractable>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-            break; // 已找到目标红书，不再继续寻找 / Stop searching after finding the target book.
+            if (word.english != "book") continue;
+            book = word.GetComponent<XRGrabInteractable>();
+            break;
         }
-        if (book == null) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (book == null)
         {
-            TaskFeedback.For(this).Show(false, "找不到可抓取的红书\nMissing grabbable red book.", task.feedbackText); // 成功或错误反馈文字引用 / Success or retry feedback text reference.
-            return; // 返回结果或提前结束当前操作 / Return the result or exit this operation early.
+            TaskFeedback.For(this).Show(false, "找不到可抓取的红书\nMissing grabbable red book.", task.feedbackText);
+            return;
         }
-        bookBody = book.GetComponent<Rigidbody>(); // 目标红书的刚体引用 / Target red book rigidbody reference.
-        home = book.transform.position; // 物品初始位置，用于移动和复位 / Original item position for movement and reset.
-        bookRotation = book.transform.rotation; // 原书旋转，用于复位 / Original book rotation for restoration.
-        bookScale = book.transform.localScale; // 原书局部缩放，用于复位 / Original book local scale for restoration.
-        bookParent = book.transform.parent; // 红书最初的父物体 / Original parent of the red book.
-        originalKinematic = bookBody.isKinematic; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        originalGravity = bookBody.useGravity; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        originalThrow = book.throwOnDetach; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        book.throwOnDetach = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        Transform template = null; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        foreach (var candidate in FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None)) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.
+        bookBody = book.GetComponent<Rigidbody>();
+        home = book.transform.position;
+        bookRotation = book.transform.rotation;
+        bookScale = book.transform.localScale;
+        bookParent = book.transform.parent;
+        originalKinematic = bookBody.isKinematic;
+        originalGravity = bookBody.useGravity;
+        originalThrow = book.throwOnDetach;
+        book.throwOnDetach = false;
+        Transform template = null;
+        foreach (var candidate in FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            if (candidate.name == "DeskAdventureModels") { template = candidate; break; } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+            if (candidate.name == "DeskAdventureModels") { template = candidate; break; }
         }
-        if (template == null) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (template == null)
         {
-            book.throwOnDetach = originalThrow; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-            TaskFeedback.For(this).Show(false, "找不到书包模型\nMissing bag models.", task.feedbackText); // 成功或错误反馈文字引用 / Success or retry feedback text reference.
-            return; // 返回结果或提前结束当前操作 / Return the result or exit this operation early.
+            book.throwOnDetach = originalThrow;
+            TaskFeedback.For(this).Show(false, "找不到书包模型\nMissing bag models.", task.feedbackText);
+            return;
         }
-        props = Instantiate(template.gameObject, template.position, template.rotation, template.parent); // 当前回合生成的模型副本 / Model instance generated for the current round.
-        props.name = "Playful Desk Adventure"; // 当前回合生成的模型副本 / Model instance generated for the current round.
-        props.SetActive(true); // 当前回合生成的模型副本 / Model instance generated for the current round.
-        bag = props.transform.Find("Bag"); // 当前回合生成的模型副本 / Model instance generated for the current round.
-        mascot = props.transform.Find("多儿"); // 当前回合生成的模型副本 / Model instance generated for the current round.
-        FitBag(); // 按红书尺寸调整书包并建立内部检测体积 / Fit the bag to the red book and create its interior volume.
-        CreateHUD(); // 创建持续显示的当前任务界面 / Create the persistent objective display.
-        Label(bag, "书包\nBAG", .36f); // 为场景物品建立双语标签 / Create a bilingual label for a scene object.
-        if (mascot != null) Label(mascot, "多儿\nDUO ER", .13f); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        var restart = props.transform.Find("Restart").gameObject; // 当前回合生成的模型副本 / Model instance generated for the current round.
-        Label(restart.transform, "重新开始\nRESTART", .12f); // 为场景物品建立双语标签 / Create a bilingual label for a scene object.
-        restart.AddComponent<XRSimpleInteractable>().selectEntered.AddListener(RestartSelected); // 连接交互事件监听器 / Connect the interaction event listener.
-        book.selectExited.AddListener(BookReleased); // 连接交互事件监听器 / Connect the interaction event listener.
-        remaining = roundSeconds; // 每局时间上限，单位秒 / Round time limit in seconds.
-        elapsed = settled = nextHintTime = 0f; // 下一次允许显示纠错提示的时刻 / Next allowed time for a correction hint.
-        SetStage(Stage.Chase); // 切换阶段并同步任务文字和反馈 / Change stage and synchronize instructions and feedback.
-        if (book.isSelected) BookGrabbed(); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        else { bookBody.isKinematic = true; bookBody.useGravity = false; } // 处理前一条件不满足的分支 / Handle the branch where the previous condition is false.
+        props = Instantiate(template.gameObject, template.position, template.rotation, template.parent);
+        props.name = "Playful Desk Adventure";
+        props.SetActive(true);
+        bag = props.transform.Find("Bag");
+        mascot = props.transform.Find("多儿");
+        FitBag();
+        CreateHUD();
+        Label(bag, "书包\nBAG", .36f);
+        if (mascot != null) Label(mascot, "多儿\nDUO ER", .13f);
+        var restart = props.transform.Find("Restart").gameObject;
+        Label(restart.transform, "重新开始\nRESTART", .12f);
+        restart.AddComponent<XRSimpleInteractable>().selectEntered.AddListener(RestartSelected);
+        book.selectExited.AddListener(BookReleased);
+        remaining = roundSeconds;
+        elapsed = settled = nextHintTime = 0f;
+        SetStage(Stage.Chase);
+        if (book.isSelected) BookGrabbed();
+        else { bookBody.isKinematic = true; bookBody.useGravity = false; }
     }
 
-    void FitBag() // 按红书尺寸调整书包并建立内部检测体积 / Fit the bag to the red book and create its interior volume.
+    void FitBag() // Fit the bag to the book and create its invisible interior target.
     {
-        var bounds = ItemBounds(book); // 合并物品有效碰撞体的世界边界 / Combine world bounds of the active item colliders.
-        var scale = bag.localScale; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        scale.x *= Mathf.Max(1f, (bounds.size.x + .04f) / (.26f * Mathf.Abs(bag.lossyScale.x))); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        scale.z *= Mathf.Max(1f, (bounds.size.z + .04f) / (.20f * Mathf.Abs(bag.lossyScale.z))); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        bag.localScale = scale; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        var target = new GameObject("Bag interior target"); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        target.transform.SetParent(bag, false); // 把检测区域放到书包内部，跟随书包移动 / Parent the detection area to the bag so it moves with it.
-        target.transform.localPosition = new Vector3(0f, .08f, 0f); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        bagVolume = target.AddComponent<BoxCollider>(); // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
-        bagVolume.isTrigger = true; // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
-        bagVolume.size = new Vector3(.26f, .38f, .20f); // 随书包变换的内部检测体积 / Interior detection volume that follows the bag transform.
+        var bounds = ItemBounds(book);
+        var scale = bag.localScale;
+        scale.x *= Mathf.Max(1f, (bounds.size.x + .04f) / (.26f * Mathf.Abs(bag.lossyScale.x)));
+        scale.z *= Mathf.Max(1f, (bounds.size.z + .04f) / (.20f * Mathf.Abs(bag.lossyScale.z)));
+        bag.localScale = scale;
+        var target = new GameObject("Bag interior target");
+        target.transform.SetParent(bag, false);
+        target.transform.localPosition = new Vector3(0f, .08f, 0f);
+        bagVolume = target.AddComponent<BoxCollider>();
+        bagVolume.isTrigger = true;
+        bagVolume.size = new Vector3(.26f, .38f, .20f);
     }
 
-    void CreateHUD() // 使用共用方法创建任务提示 / Create task instructions through the shared UI method.
+    void CreateHUD() // Create an opaque instruction panel using the task font.
     {
-        hud = TaskFeedback.CreatePanel(props.transform, "Task2 Instructions", new Vector2(900, 230), new Vector2(16, 8), 32, 110, new Color(.02f, .04f, .08f, 1f)); // 保留任务面板原来的尺寸、留白和外观 / Preserve the existing task panel size, padding and appearance.
-        if (task.feedbackText != null) hud.font = task.feedbackText.font; // 继续使用原中文字体 / Keep the existing Chinese font.
+        hud = TaskFeedback.CreatePanel(props.transform, "Task2 Instructions", new Vector2(900, 230), new Vector2(16, 8), 32, 110, new Color(.02f, .04f, .08f, 1f));
+        if (task.feedbackText != null) hud.font = task.feedbackText.font;
     }
 
-    void Label(Transform target, string text, float height) // 为场景物品建立双语标签 / Create a bilingual label for a scene object.
+    void Label(Transform target, string text, float height)
     {
-        var root = new GameObject("Label", typeof(TextMeshPro)); // 创建所需的场景对象或组件 / Create the required scene object or component.
-        root.transform.SetParent(target, false); // 把名称文字挂到对应物品下面 / Attach the name label to its object.
-        root.transform.localScale = new Vector3(1f / target.lossyScale.x, 1f / target.lossyScale.y, 1f / target.lossyScale.z); // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        root.transform.position = target.position + Vector3.up * height; // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        var label = root.GetComponent<TextMeshPro>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-        if (task.feedbackText != null) label.font = task.feedbackText.font; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        label.text = text; // 更新玩家可见的界面文字 / Update text visible to the player.
-        label.fontSize = .7f; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        label.alignment = TextAlignmentOptions.Center; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        label.rectTransform.sizeDelta = new Vector2(.4f, .12f); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        labels.Add(root.transform); // 需要面向玩家的物品标签集合 / Object labels that must face the player.
+        var root = new GameObject("Label", typeof(TextMeshPro));
+        root.transform.SetParent(target, false);
+        root.transform.localScale = new Vector3(1f / target.lossyScale.x, 1f / target.lossyScale.y, 1f / target.lossyScale.z);
+        root.transform.position = target.position + Vector3.up * height;
+        var label = root.GetComponent<TextMeshPro>();
+        if (task.feedbackText != null) label.font = task.feedbackText.font;
+        label.text = text;
+        label.fontSize = .7f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.rectTransform.sizeDelta = new Vector2(.4f, .12f);
+        labels.Add(root.transform);
     }
 
-    void RestartSelected(SelectEnterEventArgs args) { task.RestartAdventure(); } // 点击重玩按钮时重新开始任务二 / Restart Task2 when its restart control is selected.
+    void RestartSelected(SelectEnterEventArgs args) { task.RestartAdventure(); }
 
-    public void BookGrabbed() // 抓住红书后直接进入装包阶段 / Go directly to packing when the red book is grabbed.
+    public void BookGrabbed() // Stop escape movement by switching from Chase to Pack.
     {
-        if (CurrentStage != Stage.Chase) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        bookBody.useGravity = originalGravity; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        SetStage(Stage.Pack); // 切换阶段并同步任务文字和反馈 / Change stage and synchronize instructions and feedback.
+        if (CurrentStage != Stage.Chase) return;
+        bookBody.useGravity = originalGravity;
+        SetStage(Stage.Pack);
     }
 
-    void BookReleased(SelectExitEventArgs args) // 松手后恢复书本的原始物理设置 / Restore the original book physics after release.
+    void BookReleased(SelectExitEventArgs args) // Restore the book physics after release.
     {
-        if (CurrentStage != Stage.Pack) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        bookBody.isKinematic = originalKinematic; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        bookBody.useGravity = originalGravity; // 目标红书的刚体引用 / Target red book rigidbody reference.
+        if (CurrentStage != Stage.Pack) return;
+        bookBody.isKinematic = originalKinematic;
+        bookBody.useGravity = originalGravity;
     }
 
-    public void WrongObject() // 提示玩家改用目标红书 / Ask the player to use the target red book.
+    public void WrongObject()
     {
-        if (CurrentStage != Stage.Chase && CurrentStage != Stage.Pack) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        TaskFeedback.For(this).Show(false, "请拿红书，放进书包。\nUse the RED book and put it in the bag.", task.feedbackText); // 成功或错误反馈文字引用 / Success or retry feedback text reference.
+        if (CurrentStage != Stage.Chase && CurrentStage != Stage.Pack) return;
+        TaskFeedback.For(this).Show(false, "请拿红书，放进书包。\nUse the RED book and put it in the bag.", task.feedbackText);
     }
 
-    public string Mission() // 返回当前阶段的中英文指令 / Return the current bilingual objective.
+    public string Mission()
     {
-        switch (CurrentStage) // 按照当前任务阶段选择对应提示 / Choose the objective for the current task stage.
+        switch (CurrentStage)
         {
-            case Stage.Chase: return "抓住逃跑的红书，放进书包，然后松手。\nCatch the RED book, put it in the bag and release."; // 返回该任务阶段的双语提示 / Return the bilingual objective for this stage.
-            case Stage.Pack: return "把红书放进书包，然后松手。\nPut the RED book inside the bag and release."; // 返回该任务阶段的双语提示 / Return the bilingual objective for this stage.
-            case Stage.Won: return "任务完成！\nMission complete!"; // 返回该任务阶段的双语提示 / Return the bilingual objective for this stage.
-            case Stage.TimedOut: return "时间到了，请重新开始。\nTime's up. Restart to try again."; // 返回该任务阶段的双语提示 / Return the bilingual objective for this stage.
-            default: return "准备开始任务。\nReady to start."; // 处理尚未开始任务的默认提示 / Handle the default objective before a round starts.
+            case Stage.Chase: return "抓住逃跑的红书，放进书包，然后松手。\nCatch the RED book, put it in the bag and release.";
+            case Stage.Pack: return "把红书放进书包，然后松手。\nPut the RED book inside the bag and release.";
+            case Stage.Won: return "任务完成！\nMission complete!";
+            case Stage.TimedOut: return "时间到了，请重新开始。\nTime's up. Restart to try again.";
+            default: return "准备开始任务。\nReady to start.";
         }
     }
 
-    void SetStage(Stage stage) // 切换阶段并同步任务文字和反馈 / Change stage and synchronize instructions and feedback.
+    void SetStage(Stage stage) // Change stage and update both instructions and feedback.
     {
-        CurrentStage = stage; // 当前回合阶段，只允许组件内部修改 / Current round stage, writable only inside this component.
-        settled = 0f; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        string message = Mission(); // 返回当前阶段的中英文指令 / Return the current bilingual objective.
-        if (task.instructionText != null) task.instructionText.text = message.Split('\n')[0]; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (task.feedbackText != null) task.feedbackText.text = message; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        RefreshMission(); // 刷新任务文字与剩余时间 / Refresh the objective and remaining time.
-        TaskFeedback.For(this).Show(stage != Stage.TimedOut, message, task.feedbackText); // 成功或错误反馈文字引用 / Success or retry feedback text reference.
+        CurrentStage = stage;
+        settled = 0f;
+        string message = Mission();
+        if (task.instructionText != null) task.instructionText.text = message.Split('\n')[0];
+        if (task.feedbackText != null) task.feedbackText.text = message;
+        RefreshMission();
+        TaskFeedback.For(this).Show(stage != Stage.TimedOut, message, task.feedbackText);
     }
 
-    void RefreshMission() // 刷新任务文字与剩余时间 / Refresh the objective and remaining time.
+    void RefreshMission()
     {
-        if (hud != null) hud.text = "TASK 2 · " + Mathf.CeilToInt(remaining) + "s\n" + Mission(); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (hud != null) hud.text = "TASK 2 · " + Mathf.CeilToInt(remaining) + "s\n" + Mission();
     }
 
-    void LateUpdate() // 在帧末更新面向玩家的界面位置 / Update player-facing UI positions at the end of the frame.
+    void LateUpdate() // Keep instructions and labels facing the player.
     {
-        if (props == null) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (view == null) view = Camera.main; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (view == null) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        var panel = hud.transform.parent; // 持续显示的任务文字 / Persistent objective text.
-        panel.position = view.transform.position + view.transform.forward * .9f + view.transform.up * (CurrentStage == Stage.Won ? 0f : .22f); // 玩家当前使用的主摄像机 / Main camera currently used by the player.
-        panel.localScale = Vector3.one * .0007f; // 缩小近距离卡片，保留操作视野 / Scale the closer card to preserve the play area.
-        panel.rotation = view.transform.rotation; // 玩家当前使用的主摄像机 / Main camera currently used by the player.
-        foreach (var label in labels) if (label != null) label.rotation = view.transform.rotation; // 逐一处理集合中的物品或组件 / Process each item or component in the collection.
+        if (props == null) return;
+        if (view == null) view = Camera.main;
+        if (view == null) return;
+        var panel = hud.transform.parent;
+        panel.position = view.transform.position + view.transform.forward * .9f + view.transform.up * (CurrentStage == Stage.Won ? 0f : .22f);
+        panel.localScale = Vector3.one * .0007f;
+        panel.rotation = view.transform.rotation;
+        foreach (var label in labels) if (label != null) label.rotation = view.transform.rotation;
     }
 
-    void Update() // 每帧推进计时、移动和任务判定 / Advance timing, motion and objective checks each frame.
+    void Update() // Advance time, move the book and check packing success.
     {
-        if (props == null) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (mascot != null) mascot.position = home + new Vector3(Mathf.Sin(Time.time) * .25f, .3f, .2f); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (CurrentStage != Stage.Chase && CurrentStage != Stage.Pack) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        remaining = Mathf.Max(0f, remaining - Time.deltaTime); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        elapsed += Time.deltaTime; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        RefreshMission(); // 刷新任务文字与剩余时间 / Refresh the objective and remaining time.
-        if (remaining <= 0f) { SetStage(Stage.TimedOut); RestoreBook(); return; } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (CurrentStage == Stage.Chase && !book.isSelected) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (props == null) return;
+        if (mascot != null) mascot.position = home + new Vector3(Mathf.Sin(Time.time) * .25f, .3f, .2f);
+        if (CurrentStage != Stage.Chase && CurrentStage != Stage.Pack) return;
+        remaining = Mathf.Max(0f, remaining - Time.deltaTime);
+        elapsed += Time.deltaTime;
+        RefreshMission();
+        if (remaining <= 0f) { SetStage(Stage.TimedOut); RestoreBook(); return; }
+        if (CurrentStage == Stage.Chase && !book.isSelected) // Only escape while chasing and not held.
         {
-            Vector3 offset = new Vector3(Mathf.Sin(elapsed * 1.8f) * .5f, .12f + Mathf.Abs(Mathf.Sin(elapsed * 2f)) * .13f, Mathf.Sin(elapsed * .9f) * .22f); // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-            bookBody.MovePosition(Vector3.MoveTowards(bookBody.position, home + offset, Time.deltaTime * .65f)); // 目标红书的刚体引用 / Target red book rigidbody reference.
+            Vector3 offset = new Vector3(Mathf.Sin(elapsed * 1.8f) * .5f, .12f + Mathf.Abs(Mathf.Sin(elapsed * 2f)) * .13f, Mathf.Sin(elapsed * .9f) * .22f);
+            bookBody.MovePosition(Vector3.MoveTowards(bookBody.position, home + offset, Time.deltaTime * .65f));
         }
-        if (CurrentStage == Stage.Pack && InsideBag(book, bagVolume) && !book.isSelected) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (CurrentStage == Stage.Pack && InsideBag(book, bagVolume) && !book.isSelected) // Both correct placement and release are required.
         {
-            settled += Time.deltaTime; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-            if (settled >= .4f) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+            settled += Time.deltaTime;
+            if (settled >= .4f) // Require a released book to remain inside for 0.4 seconds.
             {
-                SetStage(Stage.Won); // 切换阶段并同步任务文字和反馈 / Change stage and synchronize instructions and feedback.
-                task.CompleteAdventure(); // 标记任务二完成并关闭输入判定 / Mark Task2 complete and stop objective input checks.
-                int stars = remaining > 90f ? 3 : remaining > 30f ? 2 : 1; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-                TaskFeedback.For(this).Clear(); // 清除短提示，让结束画面保持清晰 / Clear transient feedback for the persistent result screen.
-                if (task.task2Panel != null) task.task2Panel.SetActive(false); // 结束后隐藏旧任务面板 / Hide the old task panel on completion.
-                ((RectTransform)hud.transform.parent).sizeDelta = new Vector2(1000, 600); // 扩展为独立的结束画面 / Expand into a dedicated completion screen.
-                hud.fontSize = 44; // 放大结束画面文字 / Enlarge result text.
-                hud.text = "任务完成！\nMission complete!\n" + new string('★', stars) + "\n书包装好了！\nSelect RESTART to play again."; // 持续显示的任务文字 / Persistent objective text.
-                CreateExitButton(); // 在结束画面提供退出入口 / Provide an exit action on the result screen.
-                return; // 返回结果或提前结束当前操作 / Return the result or exit this operation early.
+                SetStage(Stage.Won);
+                task.CompleteAdventure();
+                int stars = remaining > 90f ? 3 : remaining > 30f ? 2 : 1;
+                TaskFeedback.For(this).Clear();
+                if (task.task2Panel != null) task.task2Panel.SetActive(false);
+                ((RectTransform)hud.transform.parent).sizeDelta = new Vector2(1000, 600);
+                hud.fontSize = 44;
+                hud.text = "任务完成！\nMission complete!\n" + new string('★', stars) + "\n书包装好了！\nSelect RESTART to play again.";
+                CreateExitButton();
+                return;
             }
         }
-        else settled = 0f; // 处理前一条件不满足的分支 / Handle the branch where the previous condition is false.
-        ExplainBagAttempt(); // 解释未松手或放错绿书的情况 / Explain held-book and wrong-book attempts.
-        if (!book.isSelected && (book.transform.position.y < home.y - .8f || Vector3.Distance(book.transform.position, home) > 2.5f)) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        else settled = 0f;
+        ExplainBagAttempt();
+        if (!book.isSelected && (book.transform.position.y < home.y - .8f || Vector3.Distance(book.transform.position, home) > 2.5f))
         {
-            bookBody.position = home; // 目标红书的刚体引用 / Target red book rigidbody reference.
-            if (!bookBody.isKinematic) { bookBody.linearVelocity = Vector3.zero; bookBody.angularVelocity = Vector3.zero; } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+            bookBody.position = home;
+            if (!bookBody.isKinematic) { bookBody.linearVelocity = Vector3.zero; bookBody.angularVelocity = Vector3.zero; }
         }
     }
 
-    void CreateExitButton() // 创建手柄可点击的退出按钮 / Create a controller-clickable exit button.
+    void CreateExitButton() // Create an exit action usable by controller rays or the editor mouse.
     {
-        var panel = (RectTransform)hud.transform.parent; // 使用现有结束画面 / Use the existing result panel.
-        panel.gameObject.AddComponent<TrackedDeviceGraphicRaycaster>(); // 接受 XR 控制器射线 / Accept XR controller rays.
-        panel.gameObject.AddComponent<GraphicRaycaster>(); // 同时支持编辑器鼠标 / Also support the editor mouse.
-        ((RectTransform)hud.transform).offsetMin = new Vector2(16, 140); // 给底部按钮预留空间 / Reserve bottom space for the button.
-        var buttonObject = new GameObject("Exit Button", typeof(RectTransform), typeof(Image), typeof(Button)); // 创建按钮 / Create the button.
-        var rect = buttonObject.GetComponent<RectTransform>(); // 获取布局 / Get the layout.
-        rect.SetParent(panel, false); // 放在结束画面内 / Parent to the result panel.
-        rect.anchorMin = rect.anchorMax = new Vector2(.5f, 0); // 锚定底部中央 / Anchor at bottom centre.
-        rect.anchoredPosition = new Vector2(0, 70); // 设置按钮位置 / Set button position.
-        rect.sizeDelta = new Vector2(400, 90); // 提供较大的点击区域 / Provide a large click target.
-        var image = buttonObject.GetComponent<Image>(); // 获取按钮背景 / Get the button background.
-        image.color = new Color(.12f, .35f, .55f); // 设置清晰的背景颜色 / Use a distinct background colour.
-        var button = buttonObject.GetComponent<Button>(); // 获取点击组件 / Get the button component.
-        button.targetGraphic = image; // 启用悬停及按下反馈 / Enable hover and press feedback.
-        button.onClick.AddListener(ExitGame); // 连接退出动作 / Connect the exit action.
-        var labelObject = new GameObject("Exit Label", typeof(RectTransform), typeof(TextMeshProUGUI)); // 创建双语文字 / Create bilingual text.
-        labelObject.transform.SetParent(rect, false); // 文字放在按钮内 / Parent text to the button.
-        var labelRect = labelObject.GetComponent<RectTransform>(); // 获取文字布局 / Get text layout.
-        labelRect.anchorMin = Vector2.zero; labelRect.anchorMax = Vector2.one; // 填满按钮 / Fill the button.
-        labelRect.offsetMin = labelRect.offsetMax = Vector2.zero; // 去除默认偏移 / Remove default offsets.
-        var label = labelObject.GetComponent<TextMeshProUGUI>(); // 获取文字组件 / Get the text component.
-        label.font = hud.font; label.fontSize = 36; // 复用中文字体 / Reuse the Chinese font.
-        label.text = "退出游戏 / Exit"; // 显示退出标签 / Show the exit label.
-        label.alignment = TextAlignmentOptions.Center; label.raycastTarget = false; // 文字居中且不拦截按钮 / Centre text without intercepting button input.
+        var panel = (RectTransform)hud.transform.parent;
+        panel.gameObject.AddComponent<TrackedDeviceGraphicRaycaster>();
+        panel.gameObject.AddComponent<GraphicRaycaster>();
+        ((RectTransform)hud.transform).offsetMin = new Vector2(16, 140);
+        var buttonObject = new GameObject("Exit Button", typeof(RectTransform), typeof(Image), typeof(Button));
+        var rect = buttonObject.GetComponent<RectTransform>();
+        rect.SetParent(panel, false);
+        rect.anchorMin = rect.anchorMax = new Vector2(.5f, 0);
+        rect.anchoredPosition = new Vector2(0, 70);
+        rect.sizeDelta = new Vector2(400, 90);
+        var image = buttonObject.GetComponent<Image>();
+        image.color = new Color(.12f, .35f, .55f);
+        var button = buttonObject.GetComponent<Button>();
+        button.targetGraphic = image;
+        button.onClick.AddListener(ExitGame);
+        var labelObject = new GameObject("Exit Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        labelObject.transform.SetParent(rect, false);
+        var labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero; labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = labelRect.offsetMax = Vector2.zero;
+        var label = labelObject.GetComponent<TextMeshProUGUI>();
+        label.font = hud.font; label.fontSize = 36;
+        label.text = "退出游戏 / Exit";
+        label.alignment = TextAlignmentOptions.Center; label.raycastTarget = false;
     }
 
-    public void ExitGame() // 退出应用，编辑器中停止测试 / Quit the app or stop the editor test.
+    public void ExitGame() // Stop Play mode in the editor; quit the installed app.
     {
-#if UNITY_EDITOR // 编辑器专用路径 / Editor-only path.
-        UnityEditor.EditorApplication.isPlaying = false; // 停止 Play 模式 / Stop Play mode.
-#else // 头显安装版路径 / Installed headset build path.
-        Application.Quit(); // 关闭当前应用 / Close the application.
-#endif // 结束平台选择 / End platform selection.
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
-    void ExplainBagAttempt() // 解释未松手或放错绿书的情况 / Explain held-book and wrong-book attempts.
+    void ExplainBagAttempt() // Explain held-book and wrong-book attempts without spamming hints.
     {
-        if (Time.unscaledTime < nextHintTime) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        string message = null; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        if (InsideBag(book, bagVolume) && book.isSelected) // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-            message = "位置对了！请松手。\nCorrect position! Release the book."; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        else // 处理前一条件不满足的分支 / Handle the branch where the previous condition is false.
+        if (Time.unscaledTime < nextHintTime) return;
+        string message = null;
+        if (InsideBag(book, bagVolume) && book.isSelected)
+            message = "位置对了！请松手。\nCorrect position! Release the book.";
+        else
         {
-            foreach (var word in FindObjectsByType<LookWord>(FindObjectsSortMode.None)) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.
+            foreach (var word in FindObjectsByType<LookWord>(FindObjectsSortMode.None))
             {
-                if (word.english != "green book") continue; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-                var green = word.GetComponent<XRGrabInteractable>(); // 取得所需的场景组件引用 / Resolve the required scene component reference.
-                if (green != null && InsideBag(green, bagVolume)) message = "这是绿书，请把红书放进书包。\nThat is the green book. Use the RED book."; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+                if (word.english != "green book") continue;
+                var green = word.GetComponent<XRGrabInteractable>();
+                if (green != null && InsideBag(green, bagVolume)) message = "这是绿书，请把红书放进书包。\nThat is the green book. Use the RED book.";
             }
         }
-        if (message == null) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        nextHintTime = Time.unscaledTime + 3f; // 下一次允许显示纠错提示的时刻 / Next allowed time for a correction hint.
-        TaskFeedback.For(this).Show(false, message, task.feedbackText); // 成功或错误反馈文字引用 / Success or retry feedback text reference.
+        if (message == null) return;
+        nextHintTime = Time.unscaledTime + 3f;
+        TaskFeedback.For(this).Show(false, message, task.feedbackText);
     }
 
-    public static Bounds ItemBounds(XRGrabInteractable item) // 合并物品有效碰撞体的世界边界 / Combine world bounds of the active item colliders.
+    public static Bounds ItemBounds(XRGrabInteractable item) // Combine enabled non-trigger colliders to locate the book centre.
     {
-        Bounds bounds = new Bounds(item.transform.position, Vector3.zero); // 设置物体的位置、旋转或尺寸 / Set the object position, rotation or size.
-        bool found = false; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        foreach (var collider in item.GetComponentsInChildren<Collider>()) // 逐一处理集合中的物品或组件 / Process each item or component in the collection.
+        Bounds bounds = new Bounds(item.transform.position, Vector3.zero);
+        bool found = false;
+        foreach (var collider in item.GetComponentsInChildren<Collider>())
         {
-            if (collider.isTrigger || !collider.enabled || !collider.gameObject.activeInHierarchy) continue; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-            if (!found) { bounds = collider.bounds; found = true; } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-            else bounds.Encapsulate(collider.bounds); // 处理前一条件不满足的分支 / Handle the branch where the previous condition is false.
+            if (collider.isTrigger || !collider.enabled || !collider.gameObject.activeInHierarchy) continue;
+            if (!found) { bounds = collider.bounds; found = true; }
+            else bounds.Encapsulate(collider.bounds);
         }
-        return bounds; // 返回结果或提前结束当前操作 / Return the result or exit this operation early.
+        return bounds;
     }
 
-    public static bool InsideBag(XRGrabInteractable item, BoxCollider interior) // 在书包局部坐标中检查物品中心 / Check the item center in the bag local coordinates.
+    public static bool InsideBag(XRGrabInteractable item, BoxCollider interior) // Check the book centre in the bag target’s local coordinates.
     {
-        if (item == null || interior == null || !item.gameObject.activeInHierarchy) return false; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        Vector3 center = interior.transform.InverseTransformPoint(ItemBounds(item).center) - interior.center; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        Vector3 half = interior.size * .5f; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        return Mathf.Abs(center.x) <= half.x && Mathf.Abs(center.y) <= half.y && Mathf.Abs(center.z) <= half.z; // 返回结果或提前结束当前操作 / Return the result or exit this operation early.
+        if (item == null || interior == null || !item.gameObject.activeInHierarchy) return false;
+        Vector3 center = interior.transform.InverseTransformPoint(ItemBounds(item).center) - interior.center;
+        Vector3 half = interior.size * .5f;
+        return Mathf.Abs(center.x) <= half.x && Mathf.Abs(center.y) <= half.y && Mathf.Abs(center.z) <= half.z;
     }
 
-    void RestoreBook() // 取消抓取并复位原书的姿态与物理状态 / Cancel selection and restore the book pose and physics.
+    void RestoreBook() // Cancel selection and restore the original pose and physics.
     {
-        if (book == null) return; // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        if (book.isSelected && book.interactionManager != null) book.interactionManager.CancelInteractableSelection((IXRSelectInteractable)book); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        book.transform.SetParent(bookParent, true); // 红书最初的父物体 / Original parent of the red book.
-        book.transform.localScale = bookScale; // 原书局部缩放，用于复位 / Original book local scale for restoration.
-        bookBody.position = home; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        bookBody.rotation = bookRotation; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        bookBody.isKinematic = originalKinematic; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        bookBody.useGravity = originalGravity; // 目标红书的刚体引用 / Target red book rigidbody reference.
-        book.throwOnDetach = originalThrow; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
-        if (!bookBody.isKinematic) { bookBody.linearVelocity = Vector3.zero; bookBody.angularVelocity = Vector3.zero; } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
+        if (book == null) return;
+        if (book.isSelected && book.interactionManager != null) book.interactionManager.CancelInteractableSelection((IXRSelectInteractable)book);
+        book.transform.SetParent(bookParent, true);
+        book.transform.localScale = bookScale;
+        bookBody.position = home;
+        bookBody.rotation = bookRotation;
+        bookBody.isKinematic = originalKinematic;
+        bookBody.useGravity = originalGravity;
+        book.throwOnDetach = originalThrow;
+        if (!bookBody.isKinematic) { bookBody.linearVelocity = Vector3.zero; bookBody.angularVelocity = Vector3.zero; }
     }
 
-    public void StopRound() // 停止当前回合并清理生成的物品和监听器 / Stop the round and clean up spawned objects and listeners.
+    public void StopRound() // Remove listeners, round props and temporary materials.
     {
-        CurrentStage = Stage.Idle; // 当前回合阶段，只允许组件内部修改 / Current round stage, writable only inside this component.
-        if (book != null) book.selectExited.RemoveListener(BookReleased); // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        RestoreBook(); // 取消抓取并复位原书的姿态与物理状态 / Cancel selection and restore the book pose and physics.
-        if (props != null) { props.SetActive(false); Destroy(props); } // 检查条件，仅在满足时执行后续操作 / Execute the following action only when its condition holds.
-        foreach (var material in frontMaterials.Values) Destroy(material); // 释放本局前景材质 / Release foreground materials from this round.
-        frontMaterials.Clear(); // 重玩时重新建立材质缓存 / Rebuild the material cache for a new round.
-        hud = null; // 防止绘制回调访问已清理的提示卡 / Prevent render callbacks from accessing the cleared panel.
-        labels.Clear(); // 需要面向玩家的物品标签集合 / Object labels that must face the player.
-        props = null; // 当前回合生成的模型副本 / Model instance generated for the current round.
-        book = null; // 保存或更新当前操作所需的数据 / Store or update data needed by the current operation.
+        CurrentStage = Stage.Idle;
+        if (book != null) book.selectExited.RemoveListener(BookReleased);
+        RestoreBook();
+        if (props != null) { props.SetActive(false); Destroy(props); }
+        foreach (var material in frontMaterials.Values) Destroy(material);
+        frontMaterials.Clear();
+        hud = null;
+        labels.Clear();
+        props = null;
+        book = null;
     }
 
-    void OnDestroy() { StopRound(); } // 销毁时清理本组件创建的状态 / Clean up this component state when destroyed.
+    void OnDestroy() { StopRound(); }
 }

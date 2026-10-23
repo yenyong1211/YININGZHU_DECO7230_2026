@@ -1,63 +1,63 @@
-using TMPro; // 显示手柄操作说明 / Display controller instructions.
-using UnityEngine.UI; // 连接继续按钮 / Connect the continue button.
-using UnityEngine; // 导入 Unity 基础功能 / Import Unity functionality.
+using TMPro;
+using UnityEngine.UI;
+using UnityEngine;
 
-public class UIFlowManager : MonoBehaviour // 管理介绍、学习、准备和开始任务的界面 / Manage introduction, learning, ready and task entry screens.
+public class UIFlowManager : MonoBehaviour
 {
-    public GameObject introPanel, learningPanel, readyPanel, startTaskButton; // 保留现有 Inspector 引用名称 / Preserve existing Inspector reference names.
+    public GameObject introPanel, learningPanel, readyPanel, startTaskButton;
 
-    private GameObject controlsPanel; // 独立的手柄说明页面 / Separate controller help page.
+    private GameObject controlsPanel;
 
-    void Start() { gameObject.AddComponent<PlayerHeight>(); ShowIntro(); } // 添加玩家高度调整功能,调用 ShowIntro()，先显示介绍/ Show the introduction when entering the room.
+    void Start() { gameObject.AddComponent<PlayerHeight>(); ShowIntro(); }
 
-    void ShowPanel(GameObject panel) // 统一处理互斥面板和开始按钮 / Handle mutually exclusive panels and the start button in one place.
+    void ShowPanel(GameObject panel) // Show only the requested onboarding screen.
     {
-        if (controlsPanel != null) controlsPanel.SetActive(panel == controlsPanel); // 同步说明页显示状态 / Synchronize the help page.
-        introPanel.SetActive(panel == introPanel); // 仅在需要介绍时显示介绍 / Show the introduction only when requested.
-        learningPanel.SetActive(panel == learningPanel); // 仅在学习时显示词语卡 / Show vocabulary cards only during learning.
-        readyPanel.SetActive(panel == readyPanel); // 仅在准备阶段显示准备页 / Show the ready screen only in the ready stage.
-        startTaskButton.SetActive(panel == null); // 关闭引导后显示原来的任务开始按钮 / Show the existing task-start button after onboarding.
+        if (controlsPanel != null) controlsPanel.SetActive(panel == controlsPanel);
+        introPanel.SetActive(panel == introPanel);
+        learningPanel.SetActive(panel == learningPanel);
+        readyPanel.SetActive(panel == readyPanel);
+        startTaskButton.SetActive(panel == null);
     }
 
-    public void ShowIntro() // 返回介绍并复位任务 / Return to the introduction and reset tasks.
+    public void ShowIntro() // Reset both tasks before returning to the introduction.
     {
-        var task1 = FindFirstObjectByType<Task1Manager>(); // Find Task1.
-        var task2 = FindFirstObjectByType<Task2Manager>(); // Find Task2.
-        if (task1 != null) task1.ResetTask(); // 清理任务一 / Reset Task1.
-        if (task2 != null) task2.ResetTask(); // 清理任务二 / Reset Task2.
-        ShowPanel(introPanel); // 显示介绍并隐藏其他引导 / Show the introduction and hide other onboarding screens.
+        var task1 = FindFirstObjectByType<Task1Manager>();
+        var task2 = FindFirstObjectByType<Task2Manager>();
+        if (task1 != null) task1.ResetTask();
+        if (task2 != null) task2.ResetTask();
+        ShowPanel(introPanel);
     }
 
-    public void StartLearning() // 介绍之后先显示操作说明 / Show controls after the introduction.
+    public void StartLearning() // Reuse the introduction layout for the controller guide.
     {
-        if (controlsPanel == null) // 首次使用时复用原介绍页外观 / Reuse introduction styling on first use.
+        if (controlsPanel == null)
         {
-            controlsPanel = Instantiate(introPanel, introPanel.transform.parent); // 保留原来的 VR 射线交互布局 / Preserve the existing VR UI layout.
-            controlsPanel.name = "Controller Instructions"; // 清楚标识说明页 / Name the help page clearly.
-            foreach (var text in controlsPanel.GetComponentsInChildren<TMP_Text>(true)) // 更新页面文字 / Update page text.
+            controlsPanel = Instantiate(introPanel, introPanel.transform.parent);
+            controlsPanel.name = "Controller Instructions";
+            foreach (var text in controlsPanel.GetComponentsInChildren<TMP_Text>(true))
             {
-                bool title = text.text == "Chinese Learning Room"; // 识别原介绍页标题 / Identify the original introduction heading.
-                bool button = text.GetComponentInParent<Button>() != null; // 检查按钮标签 / Identify button labels.
-                text.text = button ? "Continue" : title ? "Controller Guide" : "MOVE: Push the left thumbstick.\nHEIGHT: Hold X to lower your view, Y to raise it.\nSELECT: Point the ray and press the index trigger\nto click buttons or activate the computer.\nGRAB: Hold the side grip button with your middle finger.\nRELEASE: Let go of the grip button to put the book down.\nTASK 2: Put the red book inside the bag, then release it.\nLOOK: Turn your head to look around."; // 显示与项目绑定一致的英文说明 / Show English instructions matching project bindings.
-                if (!button) { text.rectTransform.anchoredPosition = new Vector2(0, title ? 220 : 0); text.rectTransform.sizeDelta = new Vector2(850, title ? 70 : 340); text.enableAutoSizing = true; text.fontSizeMin = 22; text.fontSizeMax = title ? 40 : 28; text.raycastTarget = false; } // 在原面板中完整显示说明 / Fit instructions inside the existing panel.
+                bool title = text.text == "Chinese Learning Room";
+                bool button = text.GetComponentInParent<Button>() != null;
+                text.text = button ? "Continue" : title ? "Controller Guide" : "MOVE: Push the left thumbstick.\nHEIGHT: Hold X to lower your view, Y to raise it.\nSELECT: Point the ray and press the index trigger\nto click buttons or activate the computer.\nGRAB: Hold the side grip button with your middle finger.\nRELEASE: Let go of the grip button to put the book down.\nTASK 2: Put the red book inside the bag, then release it.\nLOOK: Turn your head to look around.";
+                if (!button) { text.rectTransform.anchoredPosition = new Vector2(0, title ? 220 : 0); text.rectTransform.sizeDelta = new Vector2(850, title ? 70 : 340); text.enableAutoSizing = true; text.fontSizeMin = 22; text.fontSizeMax = title ? 40 : 28; text.raycastTarget = false; }
             }
-            foreach (var button in controlsPanel.GetComponentsInChildren<Button>(true)) // 替换克隆按钮的旧事件 / Replace cloned button callbacks.
+            foreach (var button in controlsPanel.GetComponentsInChildren<Button>(true))
             {
-                ((RectTransform)button.transform).anchoredPosition = new Vector2(0, -230); // 放在说明正文下方 / Place below the instructions.
-                button.onClick = new Button.ButtonClickedEvent(); // 清除原来的持久事件 / Clear original persistent callbacks.
-                button.onClick.AddListener(BeginVocabulary); // 继续后显示六张词卡 / Continue to the six vocabulary cards.
+                ((RectTransform)button.transform).anchoredPosition = new Vector2(0, -230);
+                button.onClick = new Button.ButtonClickedEvent();
+                button.onClick.AddListener(BeginVocabulary);
             }
         }
-        ShowPanel(controlsPanel); // 显示说明并隐藏介绍和任务 / Show help and hide introduction and tasks.
+        ShowPanel(controlsPanel);
     }
 
-    public void BeginVocabulary() // 从第一张词卡开始学习 / Begin learning from the first word card.
+    public void BeginVocabulary() // Open the vocabulary screen at the first word.
     {
-        ShowPanel(learningPanel); // 显示学习页面 / Show the learning screen.
-        var cards = learningPanel.GetComponentInChildren<LearningCardManager>(); // 取得词卡组件 / Get the vocabulary component.
-        if (cards != null) cards.ResetCards(); // 重置六个词语的进度 / Reset progress through the six words.
+        ShowPanel(learningPanel);
+        var cards = learningPanel.GetComponentInChildren<LearningCardManager>();
+        if (cards != null) cards.ResetCards();
     }
 
-    public void ShowReady() { ShowPanel(readyPanel); } // 学完后进入准备页 / Open the ready screen after learning.
-    public void StartMission() { ShowPanel(null); } // 保留准备页原来的开始事件 / Preserve the ready screen's existing start event.
+    public void ShowReady() { ShowPanel(readyPanel); }
+    public void StartMission() { ShowPanel(null); } // Hide onboarding and reveal the existing task-start button.
 }
