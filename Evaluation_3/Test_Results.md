@@ -2,12 +2,12 @@
 
 ## 1. Participants and Testing Context
 
-Five participants tested the prototype on 19 and 23 October 2026. They had different levels of Chinese and VR experience.
+Five participants tested the prototype on 21 and 23 October 2026. They had different levels of Chinese and VR experience.
 
 | Participant | Date | Chinese Experience | VR Experience |
 | --- | --- | --- | --- |
-| P1 | 19 October | None | None |
-| P2 | 19 October | None | A little |
+| P1 | 21 October | None | None |
+| P2 | 21 October | None | A little |
 | P3 | 23 October | A little | Frequent use |
 | P4 | 23 October | A few previously learned words | A little |
 | P5 | 23 October | Some experience; level unspecified | Some experience; frequency unspecified |
